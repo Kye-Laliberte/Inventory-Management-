@@ -1,10 +1,10 @@
 CREATE TABLE IF NOT EXISTS customers(
    customers_id INTEGER Primary KEY   AUTOINCREMENT,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
     phone TEXT UNIQUE,
     email TEXT UNIQUE,
     customers_tear INTEGER NOT NULL DEFAULT 0 CHECK(customers_tear>=0 and customers_tear<=3),
-    STATUS, NOT NULL DEFAULT 'active'  CHECK(STATUS IN('active','inactive'))
+    status NOT NULL DEFAULT 'active'  CHECK(STATUS IN('active','inactive'))
 );
 
 
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS stores(
    store_id INTEGER Primary KEY   AUTOINCREMENT,
     name TEXT NOT NULL,
     location TEXT, 
-    status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open', 'closed', 'renovation'))
+    status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open', 'closed', 'maintenance'))
 );
 
 CREATE TABLE IF NOT EXISTS items (
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS items (
     tags TEXT
 );
 
-CREATE TABLE IF NOT EXISTS inveintory(
+CREATE TABLE IF NOT EXISTS inventory(
    store_id INTEGER,
    item_id INTEGER,
    quantity INTEGER NOT NULL CHECK(quantity>0),
