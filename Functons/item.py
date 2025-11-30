@@ -15,13 +15,15 @@ def additems(name,category,price,tags,status='active',dp_path="app.db"):
                        VALUES (?,?,?,?,?)""",(name,category,price,status,tags))
         conn.commit()
         return True
-    
+    except sqlite3.IntegrityError:
+        print("item already exists.")
+        return None
     except sqlite3.Error as e:
         print(f"data ereror {e}")
         return False
     finally:
         conn.close()
 
-#if __name__ == "__main__":
-#    val=additems("toy car","toys",3.0,"fun for the kids")
-#    print(val)
+if __name__ == "__main__":
+    #additems("toy car","toys",3.0,"fun for the kids")
+    print()

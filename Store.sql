@@ -8,12 +8,12 @@ CREATE TABLE IF NOT EXISTS customers(
 );
 
 
-
 CREATE TABLE IF NOT EXISTS stores(
    store_id INTEGER Primary KEY   AUTOINCREMENT,
-    name TEXT NOT NULL,
-    location TEXT, 
+    name TEXT NOT NULL UNIQUE,
+    location TEXT,  
     status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open', 'closed', 'maintenance'))
+    --store_code INTEGER UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS items (
@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS items (
     price REAL NOT NULL CHECK(price >= 0),
     status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'inactive')),
     tags TEXT
+    --barcode INTEGER UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS inventory(

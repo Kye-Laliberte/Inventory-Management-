@@ -34,3 +34,5 @@ def addStores():
         return jsonify({"message":"store has been aded."}),201
     else:
         return jsonify({"error":"Failed to add store"}),409
+    
+    

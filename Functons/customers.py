@@ -1,10 +1,9 @@
 
 import sqlite3
 Customers_stat=['active','inactive']
-def addCustomers(name,phone,email,customers_tear=0,status='active',db_path='app.db'):
-    """"adds a Customers within the sql table constrants"""
-    conn =sqlite3.connect(db_path)
-    cursor=conn.cursor()
+def addCustomers(name,phone,email,customer_tier=0,status='active',db_path='app.db'):
+    """adds a Customers within the sql table constrants"""
+    
     try:
         
         
@@ -12,22 +11,29 @@ def addCustomers(name,phone,email,customers_tear=0,status='active',db_path='app.
             print("not a valid status")
             return False
         
-        if customers_tear<0 or customers_tear>3:
+        if customer_tier<0 or customer_tier>3:
             return False
         
-        cursor.execute("""SELECT name 1 customers WHERE phone=? OR email=?""",(phone,email))
-        if cursor.fetchone() is not None:
-            print("phone or email is already taken.")
-            return None
+
+        conn =sqlite3.connect(db_path)
+        cursor=conn.cursor()
+
         
         cursor.execute("""INSERT INTO customers (name,phone,email,customers_tear,status)
-                       VALUES (?,?,?,?,?)""",(name,phone,email,customers_tear,status))
+                       VALUES (?,?,?,?,?)""",(name,phone,email,customer_tier,status))
         conn.commit()
         return True
 
+    except sqlite3.IntegrityError:
+        print("Phone or email is already taken.")
+        return None
     except sqlite3.Error as e:
         print(f"data error {e}")
         return False
+
     finally:
         conn.close()
 
+if __name__ == "__main__":
+    val=addCustomers("Jon Dow",38232322323,"tester@yaho.com",1,'active')
+    print(val)
