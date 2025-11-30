@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS stores(
 CREATE TABLE IF NOT EXISTS items (
     item_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    category TEXT NOT NULL,
+    category TEXT NOT NULL,--home toys cleaning electronics food"
     price REAL NOT NULL CHECK(price >= 0),
     status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'inactive')),
     tags TEXT

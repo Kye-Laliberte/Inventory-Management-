@@ -21,3 +21,7 @@ def additems(name,category,price,tags,status='active',dp_path="app.db"):
         return False
     finally:
         conn.close()
+
+#if __name__ == "__main__":
+#    val=additems("toy car","toys",3.0,"fun for the kids")
+#    print(val)

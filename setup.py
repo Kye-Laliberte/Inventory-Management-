@@ -36,9 +36,9 @@ def setup(schema_path="Store.sql"):
         items=[
             ("eggs","food",12.51,'active',"food and baking product"),
             ("6 roll toilet paper","cleaning",20.25,'active',"cleaning and bathroom."),
-            ('Laptop', 'Electronics', 999.99, 'active', 'computers,tech'),
-            ('Headphones', 'Electronics', 199.99, 'active', 'audio,gadgets'),
-            ('Coffee Mug', 'Home', 12.5, 'active', 'kitchen,drinkware')
+            ('Laptop', 'electronics', 999.99, 'active', 'computers,tech'),
+            ('Headphones', 'electronics', 199.99, 'active', 'audio,gadgets'),
+            ('Coffee Mug', 'home', 12.5, 'active', 'kitchen,drinkware')
             ]
         cursor.executemany("""INSERT OR IGNORE INTO items(name, category, price, status, tags)
                            VALUES(?,?,?,?,?);""",items)
