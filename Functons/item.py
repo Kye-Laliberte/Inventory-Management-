@@ -25,5 +25,5 @@ def additems(name,category,price,tags,status='active',dp_path="app.db"):
         conn.close()
 
 if __name__ == "__main__":
-    #additems("toy car","toys",3.0,"fun for the kids")
+    additems("hd tv","electronics",3000.0,"HD screen 4k 10x10")
     print()

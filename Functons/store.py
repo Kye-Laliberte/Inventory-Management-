@@ -15,7 +15,7 @@ def addstore(name,location,status='open',db_path='app.db'):
         conn.commit()
         return True
     except sqlite3.IntegrityError:
-        print("store already at exists")
+        print(f"{name} already at exists")
         return None
     except sqlite3.Error as e:
         print(f"data ererro{e}")

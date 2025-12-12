@@ -3,6 +3,10 @@ def addToInventory(store_id,item_id,newquantity,db_path="app.db"):
     """Updatas the Inventory quantity or add a new Inventory"""
     conn=sqlite3.connect(db_path)
     cursor=conn.cursor()
+
+    if newquantity<0:
+        return False
+
     try:
         cursor.execute("SELECT 1 FROM stores WHERE store_id=?",(store_id,))
         if cursor.fetchone() is None:
@@ -34,10 +38,13 @@ def addToInventory(store_id,item_id,newquantity,db_path="app.db"):
             conn.commit()
             return True
 
-
     except sqlite3.Error as e:
         print(f"data error {e}")
         return False
     finally:
         conn.close()
-    
+
+
+if __name__=="__main__":
+    v=addToInventory(1,3,17)
+    print(v)
