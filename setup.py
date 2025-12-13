@@ -1,63 +1,141 @@
-import sqlite3
 import os
-db_path = 'app.db'
+import random
+import psycopg2
+
 def setup(schema_path="Store.sql"):
     """Creates tables from SQL file"""
+
     if not os.path.exists(schema_path):
-        raise FileExistsError(f"file not found: {schema_path}")
+        raise FileNotFoundError(f"file not found: {schema_path}")
     
-    conn=sqlite3.connect(db_path)
+    conn=psycopg2.connect(dbname="your_db", user="your_user", password="your_password", host="localhost",port="5432")
     cursor = conn.cursor()
 
     try:
         with open(schema_path, "r", encoding="utf-8") as file:
-            schema_sql =file.read()
-        cursor.executescript(schema_sql)
-        print("Tables created successfully.")
-        
-        customers=[
-            ("Bill Gray","216-211-1231","myemail@gmail.com",0,'active'),
-            ("Mark Dare","253-262-1331","just-a-guy@gmail.com",1,'active'),
-            ('Alice Johnson', '555-1234', "alice@gmail.com", 1, 'active'),
-            ('Bob Smith', "555-5678", "bob@icoud.com", 2, 'active'),
-            ('Charlie Lee', "555-8765", "charlie@gmail.com", 0, 'inactive')
-        ]
-        cursor.executemany("""INSERT OR IGNORE INTO customers (name, phone, email, customers_tear, status)
-                           VALUES(?,?,?,?,?);""",customers)
-        
-        stores=[
-            ('Main st Store',"123 Main St",'closed'),
-            ('High St Store',"456 High St",'open'),
-            ('Oak St Store',"789 Oak St",'open'),
-        ]
+            sql = file.read()
+        #for stmt in sql.split(";"):
+        #    stmt = stmt.strip()
+        #    if  stmt:   
+        #        cursor.execute(stmt)
+        cursor.execute(sql)
 
-        cursor.executemany("""INSERT OR IGNORE INTO stores (name, location, status )
-                           VALUES(?,?,?);""",stores)
-        items=[
-            ("eggs","food",12.51,'active',"food and baking product"),
-            ("6 roll toilet paper","cleaning",20.25,'active',"cleaning and bathroom."),
-            ('Laptop', 'electronics', 999.99, 'active', 'computers,tech'),
-            ('Headphones', 'electronics', 199.99, 'active', 'audio,gadgets'),
-            ('Coffee Mug', 'home', 12.5, 'active', 'kitchen,drinkware')
-            ]
-        cursor.executemany("""INSERT OR IGNORE INTO items(name, category, price, status, tags)
-                           VALUES(?,?,?,?,?);""",items)
+
+        print("Tables created successfully.")
+
+        # Seed data for customers
+        first_names = ["Bill", "Mark", "Alice", "Bob", "Charlie","Sally", "Diana", "Clark", "Bruce", "Lois", "Barry", "Kye"]
+        last_names = ["Gray", "Dare", "Johnson", "Smith", "Lee","Chopper", "Prince", "Kent", "Wayne", "Lane", "Allen", "Laliberte"]
+        email_domains = ["gmail.com", "yahoo.com", "outlook.com", "icloud.com"]
+        statuses = ["active", "inactive"]
         
+        emails_set = set()
+        customers = []
+        while len(customers) < 15:
+            first = random.choice(first_names)
+            last = random.choice(last_names)
+            name = f"{first} {last}"
+            phone = f"555-01{random.randint(10,99)}"
+            email = f"{first.lower()}.{last.lower()}{random.randint(1,100)}@{random.choice(email_domains)}"
+
+            if email in emails_set:
+                continue
+            emails_set.add(email)
+
+            tier = random.randint(0,5)
+            status = random.choice(statuses)
+            customers.append((name, phone, email, tier, status))
         
-        inv = [
-            (1, 3, 10),
-            (1, 4, 15),
-            (2, 4, 5),
-            (2, 2, 30),
-            (3, 5, 20),
-            (1, 2, 4)]
-        cursor.executemany("""INSERT INTO inventory (store_id, item_id, quantity) VALUES(?,?,?);""",inv)
+        cursor.executemany("""INSERT  INTO customers (name, phone, email, customers_tier, status)
+                           VALUES(%s,%s,%s,%s,%s)
+                           ON CONFLICT (email)  DO NOTHING;""",customers)
+        print("INSERT INTO customers")
+
+        # Seed data for stores
+        store_names = ["Main", "High", "Oak", "Pine", "Maple", "Elm", "Cedar", "Lakeview", "Hilltop", "Sunset"]
+        street_types = ["St", "Ave", "Blvd", "Rd", "Lane", "Drive"]
+        store_statuses = ["open", "closed", "maintenance"]
+        
+        stores_set = set()
+        stores = []
+
+        while len(stores) < 7:
+            name = f"{random.choice(store_names)} Store"
+            if name in stores_set:
+                continue
+            stores_set.add(name)
+            location = f"{random.randint(100,999)} {random.choice(store_names)} {random.choice(street_types)}, Cityville, ST {random.randint(10000,99999)}"
+            status = random.choice(store_statuses)
+            stores.append((name, location, status))    
+       
+        cursor.executemany("""INSERT INTO stores (name, location, status )
+                           VALUES(%s,%s,%s)
+                           ON CONFLICT (name) DO NOTHING;""",stores)
+        print("INSERT INTO stores")
+
+        items_categories = ("home", "toys", "cleaning", "electronics", "food", "clothes")
+        price_ranges = {"food": (1, 50),"cleaning": (5, 50),"electronics": (50, 2000),"home": (5, 500),"clothes": (10, 300),"toys": (5, 200)}
+        sample_items = {
+        "food": ["Eggs", "Milk", "Bread", "Cheese", "Apples"],
+        "cleaning": ["Toilet Paper", "Detergent", "Broom", "Sponge", "Dish Soap"],
+        "electronics": ["Laptop", "Headphones", "Smartphone", "Camera", "Monitor"],
+        "home": ["Coffee Mug", "Cushion", "Lamp", "Plate Set", "Blanket"],
+        "clothes": ["T-Shirt", "Jeans", "Jacket", "Socks", "Hat"],
+        "toys": ["Action Figure", "Doll", "Puzzle", "Board Game", "RC Car"]}
+        items = []
+        item_codes_set = set()
+
+        # Seed data for items
+        for category in items_categories:
+            for item_name in sample_items[category]:
+                price_min, price_max = price_ranges[category]
+                price = round(random.uniform(price_min, price_max), 2)
+                status = random.choice(statuses)
+                tags = f"{category},{item_name.lower()}"
+                
+                # Generate unique item_code
+                base_code = f"{category[:3].upper()}{item_name[:3].upper()}"
+                suffix = 1
+                item_code = f"{base_code}{suffix:03d}"
+                while item_code in item_codes_set:
+                    suffix += 1
+                    item_code = f"{base_code}{suffix:03d}"
+                item_codes_set.add(item_code)
+
+                items.append((item_code, item_name, category, price, status, tags))
+         
+        cursor.executemany("""INSERT INTO items(item_code, name, category, price, status, tags)
+                           VALUES(%s,%s,%s,%s,%s,%s) ON CONFLICT (item_code) DO NOTHING;""",items)
+        print("INSERT INTO items")
+
+        # Seed data for inventory
+        inv = []
+        assigned_inv = set()
+        
+        cursor.execute("SELECT store_id FROM stores;")
+        store_ids = [row[0] for row in cursor.fetchall()]
+        cursor.execute("SELECT item_id FROM items;")
+        item_ids = [row[0] for row in cursor.fetchall()]
+
+        for store_id in store_ids:
+            sampled_items = random.sample(item_ids, k=min(10, len(item_ids)))
+            for item_id in sampled_items:
+                if (store_id, item_id) in assigned_inv:
+                    continue
+                assigned_inv.add((store_id, item_id))
+                quantity = random.randint(0, 100)
+                status = "inactive" if  quantity == 0 else "active"
+                
+                inv.append((store_id, item_id, quantity, status))
+
+        cursor.executemany("""INSERT INTO inventory (store_id, item_id, quantity, status) VALUES(%s,%s,%s,%s) 
+                           ON CONFLICT (store_id, item_id) DO NOTHING;""",inv)
         print("INSERT INTO inventory")
 
         conn.commit()
         print("Seed data inserted")
-    except sqlite3.Error as e:
-        print(f"data errer {e}")
+    except psycopg2.Error as e:
+        print(f"data error: {e}")
     finally:
          conn.close()
 
