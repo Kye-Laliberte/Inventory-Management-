@@ -2,7 +2,7 @@ CREATE TABLE customers(
    customer_id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     phone TEXT UNIQUE,
-    email TEXT UNIQUE,
+    email TEXT UNIQUE NOT NULL,
     customers_tier INTEGER NOT NULL DEFAULT 0 CHECK(customers_tier BETWEEN 0 AND 5),
     status TEXT NOT NULL DEFAULT 'active'  CHECK(status IN('active','inactive'))
 );

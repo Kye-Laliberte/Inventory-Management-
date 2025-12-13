@@ -1,39 +1,41 @@
 
-import sqlite3
+import psycopg2
 Customers_stat=['active','inactive']
-def addCustomers(name,phone,email,customer_tier=0,status='active',db_path='app.db'):
+def addCustomers(conn,name,phone,email,customer_tier=0,status='active',db_path='app.db'):
     """adds a Customers within the sql table constrants"""
-    
     try:
-        
+        if not name or not phone or not email:
+            print("name, phone, and email are required.")
+            return False
         
         if status not in Customers_stat:
             print("not a valid status")
             return False
         
-        if customer_tier<0 or customer_tier>3:
+        if customer_tier is None:
+            customer_tier=0
+
+        if customer_tier<0 or customer_tier>5:
             return False
-        
+        cursor = conn.cursor()
 
-        conn =sqlite3.connect(db_path)
-        cursor=conn.cursor()
-
-        
-        cursor.execute("""INSERT INTO customers (name,phone,email,customers_tear,status)
-                       VALUES (?,?,?,?,?)""",(name,phone,email,customer_tier,status))
+        cursor.execute("""INSERT INTO customers (name,phone,email,customers_tier,status)
+                       VALUES (%s,%s,%s,%s,%s) RETURNING customer_id""",(name,phone,email,customer_tier,status))
         conn.commit()
-        return True
+        return cursor.fetchone()[0]
 
-    except sqlite3.IntegrityError:
-        print("Phone or email is already taken.")
+    except psycopg2.IntegrityError as l:
+        if "email" in str(l):
+            print("Email is already taken.")
+        elif "phone" in str(l):
+            print("Phone is already taken.")
+        else:
+            print("Integrity error occurred.")
         return None
-    except sqlite3.Error as e:
+    except psycopg2.Error as e:
         print(f"data error {e}")
         return False
 
     finally:
         conn.close()
 
-if __name__ == "__main__":
-    val=addCustomers("Jon Dow",38232322323,"tester@yaho.com",1,'active')
-    print(val)
