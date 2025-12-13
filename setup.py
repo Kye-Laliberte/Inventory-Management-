@@ -125,7 +125,7 @@ def setup(schema_path="Store.sql"):
                 assigned_inv.add((store_id, item_id))
                 quantity = random.randint(0, 100)
                 status = "inactive" if  quantity == 0 else "active"
-                
+
                 inv.append((store_id, item_id, quantity, status))
 
         cursor.executemany("""INSERT INTO inventory (store_id, item_id, quantity, status) VALUES(%s,%s,%s,%s) 
