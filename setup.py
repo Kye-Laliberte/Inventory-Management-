@@ -4,13 +4,13 @@ import random
 import psycopg2
 import logging
 
-def setup(schema_path="Store.sql"):
+def setup(conn, schema_path="Store.sql"):
     """Creates tables from SQL file"""
 
     if not exists(schema_path):
         raise FileNotFoundError(f"file not found: {schema_path}")
     
-    conn=psycopg2.connect(dbname="your_db", user="your_user", password="your_password", host="localhost",port="5432")
+   
     cursor = conn.cursor()
 
     try:
@@ -143,7 +143,7 @@ def setup(schema_path="Store.sql"):
     except psycopg2.Error as e:
         logging.exception(f"data error setup.py: {e}")
     finally:
-         conn.close()
+         cursor.close()
 
 if __name__ == "__main__":
     setup()
