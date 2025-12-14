@@ -41,7 +41,7 @@ def addstore(conn,name,location,status='open'):
         logging.info(f"{storecode} already exists")
         return None
     except psycopg2.Error as e:
-        logging.exception(f"data error{e}")
+        logging.exception(f"data error store.py: {e}")
         return False
     finally:
         cursor.close()

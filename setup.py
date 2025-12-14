@@ -141,7 +141,7 @@ def setup(schema_path="Store.sql"):
 
 
     except psycopg2.Error as e:
-        logging.exception(f"data error: {e}")
+        logging.exception(f"data error setup.py: {e}")
     finally:
          conn.close()
 

@@ -40,7 +40,7 @@ def addCustomers(conn,name,phone,email,customer_tier=0,status='active'):
             logging.info("Integrity error occurred.")
         return None
     except psycopg2.Error as e:
-        logging.exception(f"data error {e}")
+        logging.exception(f"data error customers.py: {e}")
         return False
 
     finally:

@@ -56,7 +56,7 @@ def additems(conn,name,category,price,tags,status='active'):
         logging.info("item already exists.")
         return None
     except psycopg2.Error as e:
-        logging.exception(f"data error {e}")
+        logging.exception(f"data error item.py: {e}")
         return False
     finally:
         cursor.close()

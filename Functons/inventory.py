@@ -58,7 +58,7 @@ def addToInventory(conn,store_id,item_id,newquantity,status='active'):
         row=cursor.fetchone()
         
         if (row):
-            quantity=row[0]
+            quantity=int(row[0])
             if(quantity==newquantity):
                 logging.info("quantity already matches")
                 return True
@@ -76,11 +76,16 @@ def addToInventory(conn,store_id,item_id,newquantity,status='active'):
             cursor.execute("""INSERT INTO inventory (store_id,item_id,quantity,status)  
                        VALUES (%s,%s,%s,%s) RETURNING inventory_id""" ,(store_id,item_id,newquantity,status))
             conn.commit()
-            return cursor.fetchone()[0] # Return the new inventory's ID
-
+        result=cursor.fetchone()
+        if result is not None:
+            result=result[0]
+        else:
+            result=None
+             
+        return result# Return the new inventory's ID
     except psycopg2.Error as e:
         logging.exception(f"data error inventory.py")
         return False
     finally:
-        if cursor:
+        if cursor is not None:
             cursor.close()
