@@ -61,16 +61,20 @@ def setup(schema_path="Store.sql"):
 
         while len(stores) < 7:
             name = f"{random.choice(store_names)} Store"
-            if name in stores_set:
-                continue
-            stores_set.add(name)
+            
             location = f"{random.randint(100,999)} {random.choice(store_names)} {random.choice(street_types)}, Cityville, ST {random.randint(10000,99999)}"
             status = random.choice(store_statuses)
-            stores.append((name, location, status))    
+            # Generate unique store_code
+            startcode=f"{name[:3].upper()}"
+            storecode=f"{startcode}-{random.randint(100,999)}"
+            stores.append((name, location, status, storecode))  
+            if storecode in stores_set:
+                continue
+            stores_set.add(storecode)
        
-        cursor.executemany("""INSERT INTO stores (name, location, status )
-                           VALUES(%s,%s,%s)
-                           ON CONFLICT (name) DO NOTHING;""",stores)
+        cursor.executemany("""INSERT INTO stores (name, location, status, store_code)
+                           VALUES(%s,%s,%s,%s)
+                           ON CONFLICT (store_code) DO NOTHING;""",stores)
         print("INSERT INTO stores")
 
         items_categories = ("home", "toys", "cleaning", "electronics", "food", "clothes")

@@ -8,6 +8,12 @@ def addCustomers(conn,name,phone,email,customer_tier=0,status='active'):
             print("name, phone, and email are required.")
             return False
         
+        name=str(name).strip()
+        phone=str(phone).strip()
+        email=str(email).strip()
+        status=str(status).strip().lower()
+        customer_tier=int(customer_tier)
+
         if status not in Customers_stat:
             print("not a valid status")
             return False

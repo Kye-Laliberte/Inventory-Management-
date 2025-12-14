@@ -10,10 +10,10 @@ CREATE TABLE customers(
 
 CREATE TABLE  stores(
    store_id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE,
-    location TEXT,  
-    status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open', 'closed', 'maintenance'))
-    --store_code INTEGER UNIQUE 
+    name TEXT NOT NULL,
+    location TEXT NOT NULL,  
+    status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open', 'closed', 'maintenance')),
+    store_code TEXT UNIQUE NOT NULL --first three letters of store name + three digit number 
 );
 
 CREATE TABLE categorys(

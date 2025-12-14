@@ -4,10 +4,15 @@ def additems(conn,name,category,price,tags,status='active'):
     """Adds an item to the items table """
     try:
         cursor=conn.cursor()
-        if name is None or price is None:
-            print("name and price are required.")
+        if name is None or price is None or category is None:
+            print("name, price, and category are required.")
             return False
         
+        name=str(name).strip()
+        price=float(price)
+        status=str(status).strip().lower()
+        category=str(category).strip().lower() if category else None
+        tags=str(tags).strip() if tags else None
         if status not in ['active','inactive']:
             print("not a valid status")
             return False
