@@ -2,6 +2,7 @@ from genericpath import exists
 import os
 import random
 import psycopg2
+import logging
 
 def setup(schema_path="Store.sql"):
     """Creates tables from SQL file"""
@@ -18,7 +19,7 @@ def setup(schema_path="Store.sql"):
      
         cursor.execute(sql)
 
-        print("Tables created successfully.")
+        logging.info("Tables created successfully.")
 
         # Seed data for customers
         first_names = ["Bill", "Mark", "Alice", "Bob", "Charlie","Sally", "Diana", "Clark", "Bruce", "Lois", "Barry", "Kye"]
@@ -46,7 +47,7 @@ def setup(schema_path="Store.sql"):
         cursor.executemany("""INSERT  INTO customers (name, phone, email, customers_tier, status)
                            VALUES(%s,%s,%s,%s,%s)
                            ON CONFLICT (email)  DO NOTHING;""",customers)
-        print("INSERT INTO customers")
+        logging.info("INSERT INTO customers")
 
         # Seed data for stores
         store_names = ["Main", "High", "Oak", "Pine", "Maple", "Elm", "Cedar", "Lakeview", "Hilltop", "Sunset"]
@@ -74,7 +75,7 @@ def setup(schema_path="Store.sql"):
         cursor.executemany("""INSERT INTO stores (name, location, status, store_code)
                            VALUES(%s,%s,%s,%s)
                            ON CONFLICT (store_code) DO NOTHING;""",stores)
-        print("INSERT INTO stores")
+        logging.info("INSERT INTO stores")
 
         items_categories = ("home", "toys", "cleaning", "electronics", "food", "clothes")
         price_ranges = {"food": (1, 50),"cleaning": (5, 50),"electronics": (50, 2000),"home": (5, 500),"clothes": (10, 300),"toys": (5, 200)}
@@ -109,7 +110,7 @@ def setup(schema_path="Store.sql"):
          
         cursor.executemany("""INSERT INTO items(item_code, name, category, price, status, tags)
                            VALUES(%s,%s,%s,%s,%s,%s) ON CONFLICT (item_code) DO NOTHING;""",items)
-        print("INSERT INTO items")
+        logging.info("INSERT INTO items")
 
         # Seed data for inventory
         inv = []
@@ -133,12 +134,14 @@ def setup(schema_path="Store.sql"):
 
         cursor.executemany("""INSERT INTO inventory (store_id, item_id, quantity, status) VALUES(%s,%s,%s,%s) 
                            ON CONFLICT (store_id, item_id) DO NOTHING;""",inv)
-        print("INSERT INTO inventory")
+        logging.info("INSERT INTO inventory")
 
         conn.commit()
-        print("Seed data inserted")
+        logging.info("Seed data inserted")
+
+
     except psycopg2.Error as e:
-        print(f"data error: {e}")
+        logging.exception(f"data error: {e}")
     finally:
          conn.close()
 

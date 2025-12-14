@@ -1,10 +1,11 @@
 import psycopg2 
 import random
+import logging
 def addstore(conn,name,location,status='open'):
     """adds a store to the store table"""
     try:
         if name is None or location is None or status is None:
-            print("name and location are required")
+            logging.error("name and location are required.")
             return False
         
         cursor = conn.cursor()
@@ -13,14 +14,14 @@ def addstore(conn,name,location,status='open'):
         status=str(status).strip().lower()
 
         if  status not in ['open','closed','maintenance']:
-            print(f"{status} is not a valid status")
+            logging.error(f"{status} is not a valid status")
             return False
         
         # Check if store with same name exists
         cursor.execute("SELECT 1 FROM stores WHERE name=%s;", (name,))
         row=cursor.fetchone()
         if row is not None:
-            print("store already exists")
+            logging.info("store already exists")
             return None
 
         # Generate unique store_code
@@ -37,10 +38,10 @@ def addstore(conn,name,location,status='open'):
         return cursor.fetchone()[0] # Return the new store's ID
     
     except psycopg2.IntegrityError:
-        print(f"{name} already exists")
+        logging.info(f"{storecode} already exists")
         return None
     except psycopg2.Error as e:
-        print(f"data error{e}")
+        logging.exception(f"data error{e}")
         return False
     finally:
         cursor.close()

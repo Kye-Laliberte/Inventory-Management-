@@ -1,7 +1,6 @@
 import psycopg2
 import logging
 
-
 def addToInventory(conn,store_id,item_id,newquantity,status='active'):
     """
     Updates the inventory quantity or adds a new inventory record.

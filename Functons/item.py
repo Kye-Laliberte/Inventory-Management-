@@ -1,11 +1,13 @@
 import psycopg2
 import random
+import logging
+
 def additems(conn,name,category,price,tags,status='active'):
     """Adds an item to the items table """
     try:
         cursor=conn.cursor()
         if name is None or price is None or category is None:
-            print("name, price, and category are required.")
+            logging.error("name, price, and category are required.")
             return False
         
         name=str(name).strip()
@@ -14,26 +16,27 @@ def additems(conn,name,category,price,tags,status='active'):
         category=str(category).strip().lower() if category else None
         tags=str(tags).strip() if tags else None
         if status not in ['active','inactive']:
-            print("not a valid status")
+            logging.error("not a valid status")
             return False
         
         if price<0:
-            print("price cannot be negative")
+            logging.error("price cannot be negative")
             return False
         
         # Check if item with same name and category exists
         cursor.execute("SELECT category_id FROM categorys WHERE name=%s;", (category,))
         category_id = cursor.fetchone()
         if category_id is None:
-            print("category does not exist")
-            return None
+            logging.info("category does not exist")
+            return False
+        
         category_id =int(category_id[0])
 
         # Check if item with same name and category exists
         cursor.execute("SELECT 1 FROM items WHERE name=%s AND category_id=%s",(name,category_id))
         row=cursor.fetchone()
         if row is not None:
-            print("item alredy exits")
+            logging.info("item already exists")
             return None
        
         #generate unique item_code
@@ -50,10 +53,10 @@ def additems(conn,name,category,price,tags,status='active'):
         return cursor.fetchone()[0]# Return the new item's ID and item_code
 
     except psycopg2.IntegrityError:
-        print("item already exists.")
+        logging.info("item already exists.")
         return None
     except psycopg2.Error as e:
-        print(f"data error {e}")
+        logging.exception(f"data error {e}")
         return False
     finally:
         cursor.close()
