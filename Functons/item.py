@@ -4,6 +4,8 @@ import logging
 
 def additems(conn,name,category,price,tags,status='active'):
     """Adds an item to the items table """
+    
+    cursor=None
     try:
         cursor=conn.cursor()
         if name is None or price is None or category is None:

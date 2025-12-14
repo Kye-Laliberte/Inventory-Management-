@@ -3,6 +3,7 @@ import random
 import logging
 def addstore(conn,name,location,status='open'):
     """adds a store to the store table"""
+    cursor=None
     try:
         if name is None or location is None or status is None:
             logging.error("name and location are required.")

@@ -4,16 +4,22 @@ import logging
 Customers_stat=['active','inactive']
 def addCustomers(conn,name,phone,email,customer_tier=0,status='active'):
     """adds a Customers within the sql table constrants"""
+    cursor=None
     try:
         if not name or not phone or not email:
             logging.error("name, phone, and email are required.")
             return False
+        try:
+            customer_tier=int(customer_tier)
+            name=str(name).strip()
+            phone=str(phone).strip()
+            email=str(email).strip()
+            status=str(status).strip().lower()
+        except ValueError:
+            logging.error("incorect inputs.")
+            return False
         
-        name=str(name).strip()
-        phone=str(phone).strip()
-        email=str(email).strip()
-        status=str(status).strip().lower()
-        customer_tier=int(customer_tier)
+        
 
         if status not in Customers_stat:
             logging.error("not a valid status")
