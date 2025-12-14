@@ -46,3 +46,24 @@ def addstore(conn,name,location,status='open'):
         return False
     finally:
         cursor.close()
+
+def get_store_status(conn,store_id):
+    """retrieves the status of a store by its ID"""
+    cursor=None
+    try:
+        cursor=conn.cursor()
+        cursor.execute("SELECT status FROM stores WHERE store_id=%s",(store_id,))
+        store_status = cursor.fetchone()
+        
+        if store_status is None:
+            logging.error("store not found")
+            return None
+        return store_status[0]
+    except psycopg2.Error as e:
+
+        logging.exception(f"data error store.py: {e}")
+        return None
+    finally:
+        if cursor is not None:
+            cursor.close()
+
