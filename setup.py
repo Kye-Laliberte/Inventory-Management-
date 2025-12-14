@@ -1,3 +1,4 @@
+from genericpath import exists
 import os
 import random
 import psycopg2
@@ -5,7 +6,7 @@ import psycopg2
 def setup(schema_path="Store.sql"):
     """Creates tables from SQL file"""
 
-    if not os.path.exists(schema_path):
+    if not exists(schema_path):
         raise FileNotFoundError(f"file not found: {schema_path}")
     
     conn=psycopg2.connect(dbname="your_db", user="your_user", password="your_password", host="localhost",port="5432")
@@ -14,12 +15,8 @@ def setup(schema_path="Store.sql"):
     try:
         with open(schema_path, "r", encoding="utf-8") as file:
             sql = file.read()
-        #for stmt in sql.split(";"):
-        #    stmt = stmt.strip()
-        #    if  stmt:   
-        #        cursor.execute(stmt)
+     
         cursor.execute(sql)
-
 
         print("Tables created successfully.")
 
@@ -67,11 +64,13 @@ def setup(schema_path="Store.sql"):
             # Generate unique store_code
             startcode=f"{name[:3].upper()}"
             storecode=f"{startcode}-{random.randint(100,999)}"
-            stores.append((name, location, status, storecode))  
+            
             if storecode in stores_set:
                 continue
             stores_set.add(storecode)
-       
+
+        stores.append((name, location, status, storecode))
+
         cursor.executemany("""INSERT INTO stores (name, location, status, store_code)
                            VALUES(%s,%s,%s,%s)
                            ON CONFLICT (store_code) DO NOTHING;""",stores)
