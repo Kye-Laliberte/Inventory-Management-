@@ -96,10 +96,10 @@ def setup(schema_path="Store.sql"):
                 # Generate unique item_code
                 base_code = f"{category[:3].upper()}{item_name[:3].upper()}"
                 suffix = 1
-                item_code = f"{base_code}{suffix:03d}"
+                item_code = f"{base_code}-{suffix:03d}"
                 while item_code in item_codes_set:
                     suffix += 1
-                    item_code = f"{base_code}{suffix:03d}"
+                    item_code = f"{base_code}-{suffix:03d}"
                 item_codes_set.add(item_code)
 
                 items.append((item_code, item_name, category, price, status, tags))

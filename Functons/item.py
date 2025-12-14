@@ -1,29 +1,54 @@
-import sqlite3
-def additems(name,category,price,tags,status='active',dp_path="app.db"):
-    """Adds an item to the items table"""
+import psycopg2
+import random
+def additems(conn,name,category,price,tags,status='active'):
+    """Adds an item to the items table """
     try:
-        conn=sqlite3.connect(dp_path)
         cursor=conn.cursor()
-        cursor.execute("SELECT 1 FROM items WHERE name=? AND category=?",(name,category))
+        if name is None or price is None:
+            print("name and price are required.")
+            return False
         
+        if status not in ['active','inactive']:
+            print("not a valid status")
+            return False
+        
+        if price<0:
+            print("price cannot be negative")
+            return False
+        
+        # Check if item with same name and category exists
+        cursor.execute("SELECT category_id FROM categorys WHERE name=%s;", (category,))
+        category_id = cursor.fetchone()
+        if category_id is None:
+            print("category does not exist")
+            return None
+        category_id =int(category_id[0])
+
+        # Check if item with same name and category exists
+        cursor.execute("SELECT 1 FROM items WHERE name=%s AND category_id=%s",(name,category_id))
         row=cursor.fetchone()
         if row is not None:
             print("item alredy exits")
             return None
-        
-        cursor.execute("""INSERT INTO items (name,category,price,status,tags) 
-                       VALUES (?,?,?,?,?)""",(name,category,price,status,tags))
+       
+        #generate unique item_code
+        startcode=f"{category[:3].upper()}{name[:3].upper()}"
+        itemcode=f"{startcode}-001"
+        while True:
+            cursor.execute("SELECT 1 FROM items WHERE item_code=%s;", (itemcode,))
+            if cursor.fetchone() is None:
+                break
+            itemcode=f"{startcode}-{random.randint(100,999)}"
+        cursor.execute("""INSERT INTO items (name,item_code,category_id,price,status,tags) 
+                       VALUES (%s,%s,%s,%s,%s,%s) RETURNING item_id, item_code""",(name,itemcode,category_id,price,status,tags))
         conn.commit()
-        return True
-    except sqlite3.IntegrityError:
+        return cursor.fetchone()[0]# Return the new item's ID and item_code
+
+    except psycopg2.IntegrityError:
         print("item already exists.")
         return None
-    except sqlite3.Error as e:
-        print(f"data ereror {e}")
+    except psycopg2.Error as e:
+        print(f"data error {e}")
         return False
     finally:
-        conn.close()
-
-if __name__ == "__main__":
-    additems("hd tv","electronics",3000.0,"HD screen 4k 10x10")
-    print()
+        cursor.close()

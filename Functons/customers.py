@@ -1,7 +1,7 @@
 
 import psycopg2
 Customers_stat=['active','inactive']
-def addCustomers(conn,name,phone,email,customer_tier=0,status='active',db_path='app.db'):
+def addCustomers(conn,name,phone,email,customer_tier=0,status='active'):
     """adds a Customers within the sql table constrants"""
     try:
         if not name or not phone or not email:
@@ -37,5 +37,5 @@ def addCustomers(conn,name,phone,email,customer_tier=0,status='active',db_path='
         return False
 
     finally:
-        conn.close()
+        cursor.close()
 
