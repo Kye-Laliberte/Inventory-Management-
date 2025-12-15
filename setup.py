@@ -10,16 +10,36 @@ def setup(conn, schema_path="Store.sql"):
     if not exists(schema_path):
         raise FileNotFoundError(f"file not found: {schema_path}")
     
-   
-    cursor = conn.cursor()
-
+    
+    cursor=None
     try:
+        cursor = conn.cursor()
+        
         with open(schema_path, "r", encoding="utf-8") as file:
             sql = file.read()
      
         cursor.execute(sql)
-
         logging.info("Tables created successfully.")
+
+
+
+        # Seed data for categorys
+        categories = [
+            ("home", "Household items"),
+            ("toys", "Toys and games"),
+            ("cleaning", "Cleaning products"),
+            ("electronics", "Electronic devices"),
+            ("food", "Food and groceries"),
+            ("clothes", "Clothing and apparel")
+        ]
+        cursor.executemany(
+            "INSERT INTO categorys (name, description) VALUES (%s,%s) ON CONFLICT (name) DO NOTHING;",
+            categories
+        )
+        logging.info("Inserted categories.")
+        cursor.execute("SELECT category_id, name FROM categorys;")
+        items_categories = {row[1]: row[0] for row in cursor.fetchall()}
+
 
         # Seed data for customers
         first_names = ["Bill", "Mark", "Alice", "Bob", "Charlie","Sally", "Diana", "Clark", "Bruce", "Lois", "Barry", "Kye"]
@@ -28,6 +48,7 @@ def setup(conn, schema_path="Store.sql"):
         statuses = ["active", "inactive"]
         
         emails_set = set()
+        phone_numbers_set = set()
         customers = []
         while len(customers) < 15:
             first = random.choice(first_names)
@@ -35,6 +56,9 @@ def setup(conn, schema_path="Store.sql"):
             name = f"{first} {last}"
             phone = f"555-01{random.randint(10,99)}"
             email = f"{first.lower()}.{last.lower()}{random.randint(1,100)}@{random.choice(email_domains)}"
+            if phone in phone_numbers_set:
+                continue
+            phone_numbers_set.add(phone)
 
             if email in emails_set:
                 continue
@@ -48,6 +72,8 @@ def setup(conn, schema_path="Store.sql"):
                            VALUES(%s,%s,%s,%s,%s)
                            ON CONFLICT (email)  DO NOTHING;""",customers)
         logging.info("INSERT INTO customers")
+
+
 
         # Seed data for stores
         store_names = ["Main", "High", "Oak", "Pine", "Maple", "Elm", "Cedar", "Lakeview", "Hilltop", "Sunset"]
@@ -69,15 +95,15 @@ def setup(conn, schema_path="Store.sql"):
             if storecode in stores_set:
                 continue
             stores_set.add(storecode)
-
-        stores.append((name, location, status, storecode))
+            stores.append((name, location, status, storecode))
 
         cursor.executemany("""INSERT INTO stores (name, location, status, store_code)
                            VALUES(%s,%s,%s,%s)
                            ON CONFLICT (store_code) DO NOTHING;""",stores)
         logging.info("INSERT INTO stores")
 
-        items_categories = ("home", "toys", "cleaning", "electronics", "food", "clothes")
+
+        # Seed data for items
         price_ranges = {"food": (1, 50),"cleaning": (5, 50),"electronics": (50, 2000),"home": (5, 500),"clothes": (10, 300),"toys": (5, 200)}
         sample_items = {
         "food": ["Eggs", "Milk", "Bread", "Cheese", "Apples"],
@@ -86,6 +112,7 @@ def setup(conn, schema_path="Store.sql"):
         "home": ["Coffee Mug", "Cushion", "Lamp", "Plate Set", "Blanket"],
         "clothes": ["T-Shirt", "Jeans", "Jacket", "Socks", "Hat"],
         "toys": ["Action Figure", "Doll", "Puzzle", "Board Game", "RC Car"]}
+        category=[ "food","cleaning","electronics","home","clothes","toys"]
         items = []
         item_codes_set = set()
 
@@ -106,9 +133,11 @@ def setup(conn, schema_path="Store.sql"):
                     item_code = f"{base_code}-{suffix:03d}"
                 item_codes_set.add(item_code)
 
-                items.append((item_code, item_name, category, price, status, tags))
-         
-        cursor.executemany("""INSERT INTO items(item_code, name, category, price, status, tags)
+                category_id = items_categories[category]
+
+                items.append((item_code, item_name, category_id, price, status, tags))
+         #nee to update category table before items table due to foreign key constraint
+        cursor.executemany("""INSERT INTO items(item_code, name, category_id, price, status, tags)
                            VALUES(%s,%s,%s,%s,%s,%s) ON CONFLICT (item_code) DO NOTHING;""",items)
         logging.info("INSERT INTO items")
 
@@ -139,11 +168,7 @@ def setup(conn, schema_path="Store.sql"):
         conn.commit()
         logging.info("Seed data inserted")
 
-
     except psycopg2.Error as e:
         logging.exception(f"data error setup.py: {e}")
     finally:
          cursor.close()
-
-if __name__ == "__main__":
-    setup()
