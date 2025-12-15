@@ -2,9 +2,11 @@ import psycopg2
 import random
 import logging
 
-def additems(conn,name,category,price,tags,status='active'):
+def additems(conn,name,category,price,tags,status='active',description=None):
     """Adds an item to the items table """
-    
+    if description is not None:
+        description=str(description).strip()
+
     cursor=None
     try:
         cursor=conn.cursor()
@@ -49,8 +51,8 @@ def additems(conn,name,category,price,tags,status='active'):
             if cursor.fetchone() is None:
                 break
             itemcode=f"{startcode}-{random.randint(100,999)}"
-        cursor.execute("""INSERT INTO items (name,item_code,category_id,price,status,tags) 
-                       VALUES (%s,%s,%s,%s,%s,%s) RETURNING item_id, item_code""",(name,itemcode,category_id,price,status,tags))
+        cursor.execute("""INSERT INTO items (name,item_code,category_id,description,price,status,tags) 
+                       VALUES (%s,%s,%s,%s,%s,%s,%s) RETURNING item_id, item_code""",(name,itemcode,category_id,description,price,status,tags))
         conn.commit()
         return cursor.fetchone()[0]# Return the new item's ID and item_code
 

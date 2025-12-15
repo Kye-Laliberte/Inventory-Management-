@@ -1,6 +1,7 @@
 import psycopg2
 import logging
 import datetime as dtime
+from Functons.inventory import addToInventory
 def addpurchase(conn,customers_id, item_id,store_id,quantity,purchases_date=None):
     """adds a purchase reaturns True if added False if error and none if sumthing is missing"""
     if quantity<=0:
@@ -9,6 +10,15 @@ def addpurchase(conn,customers_id, item_id,store_id,quantity,purchases_date=None
         
     cursor=None
     try:
+
+        try:
+            quantity=int(quantity)
+            customers_id=int(customers_id)
+            item_id=int(item_id)
+            store_id=int(store_id)
+        except ValueError:
+            logging.error("incorect vareabal types")
+
         status='active'
         if customers_id is None or item_id is None or store_id is None or quantity is None:
             logging.error("customers_id, item_id, store_id, and quantity are required.")
@@ -43,7 +53,7 @@ def addpurchase(conn,customers_id, item_id,store_id,quantity,purchases_date=None
 
         cursor=conn.cursor()
         # Check if customers_id, item_id, and store_id exist
-        cursor.execute("SELECT 1 FROM  customers WHERE customers_id=%s",(customers_id,))
+        cursor.execute("SELECT 1 FROM  customers WHERE customer_id=%s",(customers_id,))
         if cursor.fetchone() is None:
             logging.error("customers douse not exist")
             return False
@@ -100,15 +110,13 @@ def addpurchase(conn,customers_id, item_id,store_id,quantity,purchases_date=None
                        (customers_id, item_id, store_id, quantity,purchases_date)
                    VALUES (%s,%s,%s,%s,%s) """,(customers_id,item_id,store_id,quantity,purchases_date))
         
-        cursor.execute("""
-        UPDATE inventory
-        SET quantity = %s, status=%s
-        WHERE item_id=%s AND store_id=%s""",
-        (inventory_quantity, status, item_id, store_id))
-
-        print(quantity)
+        # update inventory table
+        cursor.execute("""UPDATE inventory
+                           SET quantity=%s,status=%s
+                           WHERE store_id = %s AND item_id = %s""",(inventory_quantity,status,store_id,item_id))
+            
         conn.commit()
-        return True
+        return inventory_quantity
 
     except psycopg2.Error as e:
         logging.exception(f"data error purchases.py: {e}")
