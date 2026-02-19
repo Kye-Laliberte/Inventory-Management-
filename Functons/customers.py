@@ -1,6 +1,7 @@
 
 import psycopg2
 import logging
+from psycopg2.extras import RealDictCursor
 Customers_stat=['active','inactive']
 def addCustomers(conn,name,phone,email,customer_tier=0,status='active'):
     """adds a Customers within the sql table constrants
@@ -60,5 +61,30 @@ def addCustomers(conn,name,phone,email,customer_tier=0,status='active'):
         return False
 
     finally:
-        cursor.close()
+            if cursor is not None:
+                cursor.close()
 
+def getCustumerByID(conn, customer_id):
+    """Retrieves a customer's details by their ID.
+    conn: psycopg2 connection object to the database.
+    customer_id: int - The ID of the customer.
+    Returns:
+        dict: A dictionary containing the customer's details if found.
+        None: If the customer is not found or an error occurs.
+    """
+    cursor=None
+    try:
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute("SELECT * FROM customers WHERE customer_id = %s", (customer_id,))
+        result = cursor.fetchone()
+        if result:
+            return result
+        else:
+            logging.info("Customer not found.")
+            return None
+    except psycopg2.Error as e:
+        logging.exception(f"data error customers.py: {e}")
+        return None
+    finally:
+        if cursor is not None:
+            cursor.close()

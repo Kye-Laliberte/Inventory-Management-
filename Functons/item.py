@@ -76,29 +76,31 @@ def additems(conn,name,category,price,tags,status='active',description=None):
             cursor.close()
 
 
-def get_ItemStatus(conn,item_id):
-    """retrieves the status of an item by its ID
-    returns the status as a string if found, 
-    None if item not found, and False if there's a database error."""
+def getItemByID(conn,item_id):
+    """Fetches an item from the items table by its ID.
+    conn: psycopg2 connection object to the database.
+    item_id: int - The ID of the item.
+    Returns: dict: A dictionary containing the item's details
+    if not found None or False if an error occurs."""
     cursor=None
     try:
-        cursor=conn.cursor()
+        cursor=conn.cursor(cursor_factory=RealDictCursor)
         item_id=int(item_id)
-        cursor.execute("SELECT status FROM items WHERE item_id=%s",(item_id,))
-        item_status = cursor.fetchone()
+        cursor.execute("SELECT * FROM items WHERE item_id=%s",(item_id,))
         
-        if item_status is None:
-            logging.error("item not found")
+        item = cursor.fetchone()
+        if item is None:
+            logging.info("No item found with item_id=%s", item_id)
             return None
-        
-        return item_status[0]
+    
+        return item
+    
     except psycopg2.Error as e:
-        logging.exception(f"data error in item.py get_item_status: {e}")
+        logging.exception(f"data error in item.py get_item_by_id: {e}")
         return False
     finally:
         if cursor is not None:
             cursor.close()
-
 
 def get_ItemBy_item_code(conn,item_code):
     """Fetches an item from the items table by its item_code.

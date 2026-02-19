@@ -1,7 +1,8 @@
 import psycopg2
 import logging
-from Functons.store import get_store_status
-from Functons.item import get_ItemStatus
+from Functons.store import get_store_by_ID
+from Functons.item import  getItemByID
+from Functons.customers import getCustumerByID
 import datetime as dtime
 from Functons.inventory import addToInventory
 def addpurchase(conn,customers_id, item_id,store_id,quantity,purchases_date=None):
@@ -50,71 +51,35 @@ def addpurchase(conn,customers_id, item_id,store_id,quantity,purchases_date=None
 
 
         cursor=conn.cursor()
-        # Check if customers_id, item_id, and store_id exist
-        cursor.execute("SELECT 1 FROM  customers WHERE customer_id=%s",(customers_id,))
-        if cursor.fetchone() is None:
-            logging.error("customers douse not exist")
-            return False
-        """ 
-       # Check if item_id exists
-        cursor.execute("SELECT 1 FROM items WHERE item_id=%s",(item_id,))
-        if cursor.fetchone() is None:
-            logging.error("item does not exist")
-            return False
-        
-        # Check if store_id exists
-        cursor.execute("SELECT 1 FROM stores WHERE store_id=%s",(store_id,))
-        if cursor.fetchone() is None:
-            logging.error("store does not exist")
-            return False
-        """
-            #check statuses
+       
+            
         try:
 
-            """
-            cursor.execute("SELECT status FROM stores WHERE store_id=%s",(store_id,))
-            store_status = cursor.fetchone()
-            if store_status is None or store_status[0] != 'open':
-                logging.warning("store %s is not open",store_id)
+            customer_info=getCustumerByID(conn, customers_id)
+            if customer_info is None:
+                logging.error("can not process purchase because customer not found")
                 return False
-            
-            
-            cursor.execute("SELECT status FROM items WHERE item_id=%s",(item_id,))
-            item_status = cursor.fetchone()
-            if item_status is None or item_status[0] != 'active':
-                logging.warning("item %s is not active",item_id)
+            if 'status' not in customer_info or customer_info['status'] != 'active':
+                logging.warning("customer %s is not active", customers_id)
                 return False
-            
-            """
 
-            itemStatus=get_ItemStatus(conn,item_id)
-            if itemStatus is None:
+            item_info=getItemByID(conn,item_id)
+            if item_info is None:
                 logging.error("can not process purchase because item not found")
                 return False
-            elif itemStatus is False:
-                logging.error("can not process purchase because of database error")
-                return False
-            elif itemStatus != 'active':
+            elif item_info.get('status') != 'active':
                 logging.warning("item %s is not active",item_id)
                 return False
             
-            storeStatus=get_store_status(conn,store_id)
-            if storeStatus is None:
+            store_info=get_store_by_ID(conn,store_id)
+            if store_info is None:
                 logging.error("can not process purchase because store not found")
                 return False
-            elif storeStatus is False:
+            elif 'status' not in store_info:
                 logging.error("can not process purchase because of database error")
                 return False
-            elif storeStatus != 'open':
+            elif store_info['status'] != 'open':
                 logging.warning("store %s is not open",store_id)
-                return False
-            
-            
-            
-            cursor.execute("SELECT status FROM inventory WHERE store_id=%s AND item_id=%s",(store_id,item_id))
-            inventory_status = cursor.fetchone()
-            if inventory_status is None or inventory_status[0] !='active':
-                logging.warning("item %s is not active in store %s",item_id,store_id)
                 return False
             
         except psycopg2.Error as e:

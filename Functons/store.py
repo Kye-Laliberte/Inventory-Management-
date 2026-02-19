@@ -48,29 +48,31 @@ def addstore(conn,name,location,status='open'):
     finally:
         cursor.close()
 
-def get_store_status(conn,store_id):
-    """retrieves the status of a store by its ID
-    returns the status as a string if found, 
-    None if store not found, and False if there's a database error."""
+def get_store_by_ID(conn,store_id):
     cursor=None
     try:
-        cursor=conn.cursor()
         store_id=int(store_id)
-        cursor.execute("SELECT status FROM stores WHERE store_id=%s",(store_id,))
-        store_status = cursor.fetchone()
-        
-        if store_status is None:
-            logging.error("store not found")
-            return None
-        return store_status[0]
-    except psycopg2.Error as e:
 
-        logging.exception(f"data error store.py: {e}")
+        if store_id is None:
+            logging.error("store_id is required")
+            return False
+
+        cursor=conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute("SELECT * FROM stores WHERE store_id=%s",(store_id,))
+        
+        store=cursor.fetchone()
+        if store is None:
+            logging.warning("no Store found with store_id")
+            return None
+        
+        return store
+    
+    except psycopg2.Error as e:
+        logging.exception(f"Error in store.py: get_stor_by_ID {e}")
         return False
     finally:
         if cursor is not None:
             cursor.close()
-
 
 #not tested
 def update_store_status(conn,store_id,status):

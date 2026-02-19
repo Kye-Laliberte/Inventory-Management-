@@ -1,6 +1,9 @@
 import psycopg2
 import logging
-
+import datetime as dtime
+from psycopg2.extras import RealDictCursor
+from Functons.item import getItemByID
+from Functons.store import get_store_by_ID
 def addToInventory(conn,store_id,item_id,newquantity,status='active'):
     """
     Updates the inventory quantity or adds a new inventory record.
@@ -31,7 +34,7 @@ def addToInventory(conn,store_id,item_id,newquantity,status='active'):
     try:
 
         cursor=conn.cursor()
-
+        """
         cursor.execute("SELECT status FROM stores WHERE store_id=%s",(store_id,))
         store_status = cursor.fetchone()
         if store_status is None:
@@ -48,6 +51,29 @@ def addToInventory(conn,store_id,item_id,newquantity,status='active'):
             return False
         if item_status[0] != 'active':
             logging.warning("item %s is not active",item_id)
+            return False
+        """ 
+        
+        item=getItemByID(conn,item_id)
+        if item is None:
+            logging.error("item not found in database will not update inventory")
+            return False
+        elif 'status' not in item:
+            logging.error("item status not found in database will not update inventory")
+            return False
+        elif item.get('status') != 'active':
+            logging.warning("item %s is not active",item_id)
+            return False
+        
+        store_info=get_store_by_ID(conn,store_id)
+        if store_info is None:
+            logging.error("store not found in database will not update inventory")
+            return False
+        elif 'status' not in store_info:
+            logging.error("store status not found in database will not update inventory")
+            return False
+        elif store_info['status'] != 'open':
+            logging.warning("store %s is not open",store_id)
             return False
 
         cursor.execute("SELECT quantity FROM inventory WHERE store_id=%s AND item_id=%s",(store_id,item_id))
@@ -81,3 +107,30 @@ def addToInventory(conn,store_id,item_id,newquantity,status='active'):
     finally:
         if cursor is not None:
             cursor.close()
+
+def get_inventory(conn,store_id,item_id):
+    cursor=None
+    try:
+        store_id=int(store_id)
+        item_id=int(item_id)
+
+        if store_id is None or item_id is None:
+            logging.error("store_id and item_id are required")
+            return False
+
+        cursor=conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute("SELECT * FROM inventory WHERE store_id=%s AND item_id=%s",(store_id,item_id))
+        
+        inventory=cursor.fetchone()
+        if inventory is None:
+            logging.warning("no inventory found for store_id and item_id")
+            return None
+        
+        return inventory
+    
+    except psycopg2.Error as e:
+        logging.exception(f"Error in inventory.py: get_inventory_by_store_and_item {e}")
+        return False
+    finally:
+        if cursor is not None:
+            cursor.close()    
