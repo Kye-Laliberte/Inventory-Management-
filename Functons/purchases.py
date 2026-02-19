@@ -1,10 +1,11 @@
 import psycopg2
 import logging
-from Functons.store import get_store_by_ID
+from psycopg2.extras import RealDictCursor
 from Functons.item import  getItemByID
 from Functons.customers import getCustumerByID
 import datetime as dtime
 from Functons.inventory import addToInventory
+from Functons.store import getStoreByID
 def addpurchase(conn,customers_id, item_id,store_id,quantity,purchases_date=None):
     """adds a purchase to the purchases table and updates inventory
         conn: psycopg2 connection object, customers_id int, item_id int, store_id int: 
@@ -54,6 +55,7 @@ def addpurchase(conn,customers_id, item_id,store_id,quantity,purchases_date=None
        
             
         try:
+            
 
             customer_info=getCustumerByID(conn, customers_id)
             if customer_info is None:
@@ -71,7 +73,7 @@ def addpurchase(conn,customers_id, item_id,store_id,quantity,purchases_date=None
                 logging.warning("item %s is not active",item_id)
                 return False
             
-            store_info=get_store_by_ID(conn,store_id)
+            store_info=getStoreByID(conn,store_id)
             if store_info is None:
                 logging.error("can not process purchase because store not found")
                 return False

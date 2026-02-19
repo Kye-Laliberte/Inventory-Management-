@@ -3,7 +3,7 @@ import logging
 import datetime as dtime
 from psycopg2.extras import RealDictCursor
 from Functons.item import getItemByID
-from Functons.store import get_store_by_ID
+from Functons.store import getStoreByID
 def addToInventory(conn,store_id,item_id,newquantity,status='active'):
     """
     Updates the inventory quantity or adds a new inventory record.
@@ -65,7 +65,7 @@ def addToInventory(conn,store_id,item_id,newquantity,status='active'):
             logging.warning("item %s is not active",item_id)
             return False
         
-        store_info=get_store_by_ID(conn,store_id)
+        store_info=getStoreByID(conn,store_id)
         if store_info is None:
             logging.error("store not found in database will not update inventory")
             return False

@@ -4,6 +4,8 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from Functons.getTable import getTable as gt
 from Functons.customers import getCustumerByID
+from Functons.item import getItemByID
+from Functons.store import getStoreByID
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s"
@@ -16,9 +18,7 @@ def main():
         #Setup the database (create tables and seed data)
         #setup.setup(conn) 
         # # Connect to the database
-        
-        logging.info("Database setup complete.")
-        
+        #logging.info("Database setup complete.")
         
         tables=["purchases","stores","categorys","inventory","items","customers"]
 
@@ -33,6 +33,19 @@ def main():
         if dict is not None and 'status' in dict:
             logging.info(f"Customer status: {dict['status']}")
         
+        dicts=getItemByID(conn,2)
+        if dicts is not None:
+            logging.info(f"Item details: {dicts}")
+            logging.info(f"Item name: {dicts.get('name', 'N/A')}")
+        else:
+            logging.info("Item not found or an error occurred.")
+        
+        dictss=getStoreByID(conn,1)
+        if dictss is not None:
+            logging.info(f"Store details: {dictss}")
+            logging.info(f"Store name: {dictss.get('name', 'N/A')}")
+
+
 
          # Seed data for categorys
     

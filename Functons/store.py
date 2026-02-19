@@ -2,7 +2,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import random
 import logging
-def addstore(conn,name,location,status='open'):
+def addStore(conn,name,location,status='open'):
     """adds a store to the store table"""
     cursor=None
     try:
@@ -48,7 +48,7 @@ def addstore(conn,name,location,status='open'):
     finally:
         cursor.close()
 
-def get_store_by_ID(conn,store_id):
+def getStoreByID(conn,store_id):
     cursor=None
     try:
         store_id=int(store_id)
