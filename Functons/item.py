@@ -1,9 +1,18 @@
 import psycopg2
 import random
+from psycopg2.extras import RealDictCursor
 import logging
 
 def additems(conn,name,category,price,tags,status='active',description=None):
-    """Adds an item to the items table """
+    """Adds an item to the items table
+    conn: psycopg2 connection object to the database.
+    name: str - The name of the item.
+    category: str - The category of the item.
+    price: float - The price of the item.
+    tags: str - Comma-separated tags for the item.
+    status: str - The status of the item (default is 'active').
+    description: str - The description of the item (default is None).
+    """
     if description is not None:
         description=str(description).strip()
 
@@ -60,7 +69,71 @@ def additems(conn,name,category,price,tags,status='active',description=None):
         logging.info("item already exists.")
         return None
     except psycopg2.Error as e:
-        logging.exception(f"data error item.py: {e}")
+        logging.exception(f"data error item.py additems: {e}")
         return False
     finally:
-        cursor.close()
+        if cursor is not None:
+            cursor.close()
+
+
+def get_ItemStatus(conn,item_id):
+    """retrieves the status of an item by its ID
+    returns the status as a string if found, 
+    None if item not found, and False if there's a database error."""
+    cursor=None
+    try:
+        cursor=conn.cursor()
+        item_id=int(item_id)
+        cursor.execute("SELECT status FROM items WHERE item_id=%s",(item_id,))
+        item_status = cursor.fetchone()
+        
+        if item_status is None:
+            logging.error("item not found")
+            return None
+        
+        return item_status[0]
+    except psycopg2.Error as e:
+        logging.exception(f"data error in item.py get_item_status: {e}")
+        return False
+    finally:
+        if cursor is not None:
+            cursor.close()
+
+
+def get_ItemBy_item_code(conn,item_code):
+    """Fetches an item from the items table by its item_code.
+    Item_code: str - The unique code.
+    Returns: dict: A dictionary containing the item's details if found, None if not found, 
+    or False if an error occurs."""
+    curser=None
+    try:
+        item_code=str(item_code).strip()
+        
+        if not item_code:
+            logging.error("item_code is cannot be empty")
+            return False
+        elif not isinstance(item_code, str):
+            logging.error("item_code must be a string")
+            return False
+        elif len(item_code) != 10:
+            logging.error("item_code must be exactly 10 characters long")
+            return False
+        
+        curser=conn.cursor(cursor_factory=RealDictCursor)
+
+        curser.execute("""SELECT * FROM items WHERE item_code = %s;""",(item_code,))
+        
+        item=curser.fetchone()
+
+        if not item:
+            logging.info("No item found with item_code=%s", item_code)
+            return None
+        
+        return item
+    
+    except psycopg2.Error as e:
+        logging.exception(f"Data error in item.py get_item_by_item_code: {e}")
+        return False
+    finally:
+        if curser is not None:
+            curser.close()

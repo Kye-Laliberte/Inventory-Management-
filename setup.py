@@ -1,15 +1,14 @@
-from genericpath import exists
-import os
+
+from os.path import exists 
 import random
 import psycopg2
 import logging
 
-def setup(conn, schema_path="Store.sql"):
+def setup(conn, schema_path="Datastore.session.sql"):
     """Creates tables from SQL file"""
 
     if not exists(schema_path):
         raise FileNotFoundError(f"file not found: {schema_path}")
-    
     
     cursor=None
     try:

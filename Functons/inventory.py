@@ -4,22 +4,18 @@ import logging
 def addToInventory(conn,store_id,item_id,newquantity,status='active'):
     """
     Updates the inventory quantity or adds a new inventory record.
-
     Parameters:
         conn: psycopg2 connection object to the database.
-        store_id (int): The ID of the store.
-        item_id (int): The ID of the item.
-        newquantity (int): The new quantity to set.
+        store_id int: The ID of the store.
+        item_id int: The ID of the item.
+        newquantity int: The new quantity to set.
         status (str, optional): The status of the inventory item (default is 'active').
-
     Returns:
         int: The new inventory's ID if a new record is inserted.
         True: If the inventory was updated successfully or quantity already matches.
         False: If an error occurs or input is invalid.
         None: If the store or item is not found.
     """
-    
-    
     if store_id is None or item_id is None or newquantity is None:
         logging.error("store_id, item_id, and newquantity are required.")
         return False

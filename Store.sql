@@ -23,7 +23,7 @@ CREATE TABLE categorys(
 
 CREATE TABLE  items (
     item_id SERIAL PRIMARY KEY,
-    item_code TEXT UNIQUE NOT NULL, --first three letters of category + first three letters of item name + three digit number 
+    item_code VARCHAR(10) NOT NULL UNIQUE, --first three letters of category + first three letters of item name + - + three digit number 
     name TEXT NOT NULL,
     category_id INTEGER NOT NULL REFERENCES categorys(category_id),
     description TEXT,

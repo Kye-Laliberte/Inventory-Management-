@@ -1,4 +1,5 @@
 import psycopg2 
+from psycopg2.extras import RealDictCursor
 import random
 import logging
 def addstore(conn,name,location,status='open'):
@@ -48,10 +49,13 @@ def addstore(conn,name,location,status='open'):
         cursor.close()
 
 def get_store_status(conn,store_id):
-    """retrieves the status of a store by its ID"""
+    """retrieves the status of a store by its ID
+    returns the status as a string if found, 
+    None if store not found, and False if there's a database error."""
     cursor=None
     try:
         cursor=conn.cursor()
+        store_id=int(store_id)
         cursor.execute("SELECT status FROM stores WHERE store_id=%s",(store_id,))
         store_status = cursor.fetchone()
         
@@ -62,8 +66,61 @@ def get_store_status(conn,store_id):
     except psycopg2.Error as e:
 
         logging.exception(f"data error store.py: {e}")
-        return None
+        return False
     finally:
         if cursor is not None:
             cursor.close()
 
+
+#not tested
+def update_store_status(conn,store_id,status):
+    cursor=None
+    try:
+        cursor=conn.cursor()
+        store_id=int(store_id)
+        status=str(status).lower().strip()
+
+        if status not in ["open", "closed","maintenance"]:
+            logging.error(f"{status} is not a valid statis type")
+            return False
+        
+        cursor.execute("UPDATE stores SET status =%s FROM WHERE store_id=%s",(store_id,))
+
+        if cursor.rowcount == 0:
+            logging.warning("No store found with store_id=%s", store_id)
+            return False
+
+        conn.commit()
+        return True
+    
+    except psycopg2.Error as e:
+        logging.exception(f"data Error in store.py update_store_status {e}")
+        return False
+    finally:
+        if cursor is not None:
+            cursor.close()
+
+def get_store_by_store_code(conn,store_code):
+    
+    cursor=None
+    try:
+
+        if not store_code:
+            logging.error("store_code is required")
+            return False
+
+        cursor=conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute("SELECT * FROM stores WHERE store_code=%s",(store_code,))
+        
+        store=cursor.fetchone()
+        if store is None:
+            logging.warning("no Store found with store_code")
+        
+        return store
+    
+    except psycopg2.Error as e:
+        logging.exception(f"Error in store.py: get_store_by_store_code {e}")
+        return False
+    finally:
+        if cursor is not None:
+            cursor.close()

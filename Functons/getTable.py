@@ -1,7 +1,11 @@
 import psycopg2
 import logging
 def getTable(conn, table_name):
-    """Fetches all records from the specified table."""
+    """Fetches all records from the specified table.
+    conn: psycopg2 connection object to the database.
+    table_name: str - The name of the table to fetch records from.
+     Returns:
+        list: A list of tuples containing the records from the specified table."""
     try:
         if table_name is None or not isinstance(table_name, str):
             logging.error("A valid table name is required.")

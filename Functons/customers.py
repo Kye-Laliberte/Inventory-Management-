@@ -3,7 +3,18 @@ import psycopg2
 import logging
 Customers_stat=['active','inactive']
 def addCustomers(conn,name,phone,email,customer_tier=0,status='active'):
-    """adds a Customers within the sql table constrants"""
+    """adds a Customers within the sql table constrants
+    conn: psycopg2 connection object to the database.
+    name: str - The name of the customer.
+    phone: str - The phone number of the customer.
+    email: str - The email address of the customer.
+    customer_tier: int - The tier level of the customer (default is 0).
+    status: str - The status of the customer (default is 'active').
+    Returns:
+        int: The new customer's ID if added successfully.
+        False: If an error occurs or input is invalid.
+        None: If the email or phone number is already taken.
+    """
     cursor=None
     try:
         if not name or not phone or not email:
@@ -18,8 +29,6 @@ def addCustomers(conn,name,phone,email,customer_tier=0,status='active'):
         except ValueError:
             logging.error("incorect inputs.")
             return False
-        
-        
 
         if status not in Customers_stat:
             logging.error("not a valid status")
@@ -45,6 +54,7 @@ def addCustomers(conn,name,phone,email,customer_tier=0,status='active'):
         else:
             logging.info("Integrity error occurred.")
         return None
+    
     except psycopg2.Error as e:
         logging.exception(f"data error customers.py: {e}")
         return False

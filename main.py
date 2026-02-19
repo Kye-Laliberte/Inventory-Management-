@@ -1,39 +1,37 @@
+from setup import setup
 import logging
 import psycopg2
-from Functons.purchases import addpurchase# working
-from Functons.inventory import addToInventory#working 
-from Functons.store import addstore# working
-from Functons.customers import addCustomers# working bu need to check emails are valid, not jusst testers.
-from Functons.item import additems# working
-from Functons import getTable as gt
-from setup import  setup
-
+from psycopg2.extras import RealDictCursor
+from Functons.getTable import getTable as gt
+from Functons.purchases import addpurchase
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s"
 )
 def main():
 
-    conn=psycopg2.connect(dbname="datastore", user="postgres", password="132", host="localhost",port="13579")
-        
+    conn=psycopg2.connect(dbname="datastore", user="postgres", password="12345", host="localhost",port="5433")
+        #ps 1-5
     try:
-        # Setup the database (create tables and seed data)
-        #setup(conn, schema_path="Store.sql") # Connect to the database
-        #logging.info("Database setup complete.")
-        logging.info("Retrieving all customers:")
-
-        tables=["purchases","stores","categorys","inventory","items"]
-
-        val=addpurchase(conn=conn,customers_id=1,item_id=5,store_id=1,quantity=1)
+        #Setup the database (create tables and seed data)
+        #setup.setup(conn) 
+        # # Connect to the database
         
-        customers_list = gt.getTable(conn, table_name=tables[3])
-        for customer in customers_list:
-            logging.info(customer)
+        logging.info("Database setup complete.")
+        
+        
+        tables=["purchases","stores","categorys","inventory","items","customers"]
 
-        print(val)
+        val=addpurchase(conn=conn,customers_id=3,item_id=2,store_id=5884,quantity=1)
+
+         # Seed data for categorys
+    
+
+        purchaseslist=gt(conn,"purchases")
+        for pu in purchaseslist:
+                logging.info(pu)
 
         #s I Q
-        
         
     except psycopg2.Error as e:
         logging.exception(f"data error main.py: {e}")
@@ -44,16 +42,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-#services.msc
-#PostgreSQL cmd 
-#Windows + R for command prompt
-#"C:\Program Files\PostgreSQL\17\bin\pg_ctl.exe" start -D "C:\Program Files\PostgreSQL\17\data"
-#server start
-
-#server stop
-# "C:\Program Files\PostgreSQL\17\bin\pg_ctl.exe" stop -D "C:\Program Files\PostgreSQL\17\data"
-
-#psql -U postgres -h localhost -p 13543
-
-#password: 132
-#port: 13579
