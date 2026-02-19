@@ -126,8 +126,8 @@ def updateStoresInventoryStatus(conn,store_id,status):
                 status='inactive'
         
             for items in invintory:
-            
-                if items['status'] != status:
+                    #update status of inventory but only if item is the same as store status 
+                if items['status'] == status:
                     cursor.execute("""UPDATE inventory
                            SET status =%s WHERE store_id =%s AND item_id =%s""",(status,store_id,items['item_id']))
             
