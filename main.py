@@ -1,3 +1,5 @@
+from webbrowser import get
+
 from setup import setup
 import logging
 import psycopg2
@@ -22,7 +24,9 @@ def main():
         
         tables=["purchases","stores","categorys","inventory","items","customers"]
 
-       
+        dict=getStoreByID(conn,1)
+        
+        logging.info(f"Store details: {dict}")
 
 
          # Seed data for categorys

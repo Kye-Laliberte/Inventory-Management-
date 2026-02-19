@@ -2,6 +2,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import random
 import logging
+from Functons.inventory import getInventoryOfStore
 def addStore(conn,name,location,status='open'):
     """adds a store to the store table"""
     cursor=None
@@ -85,8 +86,9 @@ def update_store_status(conn,store_id,status):
         if status not in ["open", "closed","maintenance"]:
             logging.error(f"{status} is not a valid statis type")
             return False
+        #update store status
         
-        cursor.execute("UPDATE stores SET status =%s FROM WHERE store_id=%s",(store_id,))
+        cursor.execute("UPDATE stores SET status =%s WHERE store_id=%s",(status,store_id))
 
         if cursor.rowcount == 0:
             logging.warning("No store found with store_id=%s", store_id)
@@ -101,6 +103,47 @@ def update_store_status(conn,store_id,status):
     finally:
         if cursor is not None:
             cursor.close()
+def updateStoresInventoryStatus(conn,store_id,status):
+    """updates the status of all inventory items in a store based on the store's status open=active, closed/maintenance=inactive"""
+    cursor=None
+    try:
+        
+        store_id=int(store_id)
+        status=str(status).lower().strip()
+        if status not in ["open", "closed","maintenance"]:
+            logging.error(f"{status} is not a valid status type")
+            return False
+        
+        invintory=getInventoryOfStore(conn,store_id)
+        if invintory is None:
+            logging.warning("no inventory found for store_id")
+            return None
+        
+        with conn.cursor() as cursor:
+            if status == 'open':
+                status='active'
+            else:            
+                status='inactive'
+        
+            for items in invintory:
+            
+                if items['status'] != status:
+                    cursor.execute("""UPDATE inventory
+                           SET status =%s WHERE store_id =%s AND item_id =%s""",(status,store_id,items['item_id']))
+            
+        conn.commit()
+        return True
+    
+    except psycopg2.Error as e:
+        logging.exception(f"data error in store.py updateStoresInventoryStatus {e}")
+        return False
+    finally:
+        if cursor is not None:
+            cursor.close()
+        
+
+
+
 
 def get_store_by_store_code(conn,store_code):
     
