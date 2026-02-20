@@ -30,8 +30,6 @@ def main():
 
 
          # Seed data for categorys
-    
-
         
     except psycopg2.Error as e:
         logging.exception(f"data error main.py: {e}")

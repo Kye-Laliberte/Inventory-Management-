@@ -107,6 +107,55 @@ def updateItemStatus(conn,item_id,status):
         logging.exception("item_id must be an integer and status must be a string")
         return False
 
+
+def updateItemInfo(conn,item_id,name=None,price=None,tags=None,description=None):
+    """Updates the information of an item in the items table.
+    can update name, price, tags, and description. item_id is required and other parameters are optional."""
+    try:
+        item_id=int(item_id)
+        name=str(name).strip() if name else None
+        price=float(price) if price is not None else None
+        tags=str(tags).strip() if tags else None
+        description=str(description).strip() if description else None
+        update_field=[]
+        update_values=[]
+
+        if name is not None:
+            update_field.append("name=%s")
+            update_values.append(name)
+        
+        if price is not None:
+            if price < 0:
+                    logging.error("price must be a positive number")
+                    return False
+            update_field.append("price=%s")
+            update_values.append(price)
+
+        if tags is not None:
+            update_field.append("tags=%s")
+            update_values.append(tags)
+            
+        if description is not None:
+            update_field.append("description=%s")
+            update_values.append(description)
+         
+        if update_field:
+            update_query = f"UPDATE items SET {', '.join(update_field)} WHERE item_id=%s"
+            
+            update_values.append(item_id)
+            with conn.cursor() as cursor:
+                cursor.execute(update_query, tuple(update_values))
+                conn.commit()
+            return True
+    except (ValueError, TypeError):
+        logging.exception("invalid input: item_id must be an integer, price must be a float/Int, and name, category, tags, description must be STRING")
+        return False
+    except psycopg2.Error as e:
+        logging.exception(f"data error in item.py updateItemInfo: {e}")
+        return False        
+
+
+
 def getItemByID(conn,item_id):
     """Fetches an item from the items table by its ID.
     conn: psycopg2 connection object to the database.
@@ -120,7 +169,7 @@ def getItemByID(conn,item_id):
             cursor.execute("SELECT * FROM items WHERE item_id=%s",(item_id,))
             
             item = cursor.fetchone()
-            
+
         if item is None:
             logging.info("No item found with item_id=%s", item_id)
             return None
