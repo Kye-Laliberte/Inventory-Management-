@@ -3,6 +3,7 @@ import random
 from psycopg2.extras import RealDictCursor
 import logging
 
+
 def additems(conn,name,category,price,tags,status='active',description=None):
     """Adds an item to the items table
     conn: psycopg2 connection object to the database.
@@ -75,6 +76,36 @@ def additems(conn,name,category,price,tags,status='active',description=None):
         if cursor is not None:
             cursor.close()
 
+def updateItemStatus(conn,item_id,status):
+    """Updates the status of an item in the items table."""
+    try:
+        item_id=int(item_id)
+        status=str(status).strip().lower()
+        
+        if status not in ['active','inactive']:
+            logging.error("not a valid status")
+            return False
+        
+        item_info=getItemByID(conn,item_id) # Check if item exists and is active
+        if not item_info:
+            logging.error("item not found will not update item status")
+            return False
+        
+        elif item_info['status'] == status:
+            logging.info("item already has the specified status")
+            return True
+        
+        with conn.cursor() as cursor:
+            cursor.execute("UPDATE items SET status=%s WHERE item_id=%s",(status,item_id))
+            conn.commit()
+        return True
+    
+    except psycopg2.Error as e:
+        logging.exception(f"data error in item.py updateItemStatus: {e}")
+        return False
+    except (ValueError, TypeError):
+        logging.exception("item_id must be an integer and status must be a string")
+        return False
 
 def getItemByID(conn,item_id):
     """Fetches an item from the items table by its ID.

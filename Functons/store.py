@@ -2,7 +2,6 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import random
 import logging
-from Functons.inventory import getInventoryOfStore
 def addStore(conn,name,location,status='open'):
     """adds a store to the store table"""
     cursor=None
@@ -106,10 +105,7 @@ def update_store_status(conn,store_id,status):
     except (ValueError, TypeError):
         logging.exception("store_id must be an integer and status must be a string")
         return False
-    
-
-
-    
+       
 def get_store_by_store_code(conn,store_code):
     
     cursor=None
