@@ -49,19 +49,17 @@ def addStore(conn,name,location,status='open'):
         cursor.close()
 
 def getStoreByID(conn,store_id):
-    cursor=None
     try:
         store_id=int(store_id)
-
-        cursor=conn.cursor(cursor_factory=RealDictCursor)
-        cursor.execute("SELECT * FROM stores WHERE store_id=%s",(store_id,))
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM stores WHERE store_id=%s",(store_id,))
         
-        store=cursor.fetchone()
-        if store is None:
-            logging.warning("no Store found with store_id")
-            return None
+            store=cursor.fetchone()
+            if store is None:
+                logging.warning("no Store found with store_id")
+                return None
         
-        return store
+            return store
     
     except psycopg2.Error as e:
         logging.exception(f"Error in store.py: get_stor_by_ID {e}")
@@ -69,10 +67,6 @@ def getStoreByID(conn,store_id):
     except (ValueError, TypeError):
         logging.exception("store_id must be an integer")
         return False
-    finally:
-        if cursor is not None:
-            cursor.close()
-
 #not tested
 def update_store_status(conn,store_id,status):
     try:

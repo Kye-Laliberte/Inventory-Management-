@@ -113,13 +113,14 @@ def getItemByID(conn,item_id):
     item_id: int - The ID of the item.
     Returns: dict: A dictionary containing the item's details
     if not found None or False if an error occurs."""
-    cursor=None
+    
     try:
-        cursor=conn.cursor(cursor_factory=RealDictCursor)
-        item_id=int(item_id)
-        cursor.execute("SELECT * FROM items WHERE item_id=%s",(item_id,))
-        
-        item = cursor.fetchone()
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            item_id=int(item_id)
+            cursor.execute("SELECT * FROM items WHERE item_id=%s",(item_id,))
+            
+            item = cursor.fetchone()
+            
         if item is None:
             logging.info("No item found with item_id=%s", item_id)
             return None
@@ -129,10 +130,7 @@ def getItemByID(conn,item_id):
     except psycopg2.Error as e:
         logging.exception(f"data error in item.py get_item_by_id: {e}")
         return False
-    finally:
-        if cursor is not None:
-            cursor.close()
-
+    
 def get_ItemBy_item_code(conn,item_code):
     """Fetches an item from the items table by its item_code.
     Item_code: str - The unique code.

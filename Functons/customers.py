@@ -72,19 +72,22 @@ def getCustumerByID(conn, customer_id):
         dict: A dictionary containing the customer's details if found.
         None: If the customer is not found or an error occurs.
     """
-    cursor=None
+    
     try:
-        cursor = conn.cursor(cursor_factory=RealDictCursor)
-        cursor.execute("SELECT * FROM customers WHERE customer_id = %s", (customer_id,))
-        result = cursor.fetchone()
-        if result:
-            return result
-        else:
-            logging.info("Customer not found.")
-            return None
+        customer_id=int(customer_id)
+        
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM customers WHERE customer_id = %s", (customer_id,))
+            result = cursor.fetchone()
+            if result:
+                return result
+            else:
+                logging.info("Customer not found.")
+                return None
+            
     except psycopg2.Error as e:
         logging.exception(f"data error customers.py: {e}")
-        return None
-    finally:
-        if cursor is not None:
-            cursor.close()
+        return False
+    except (ValueError, TypeError):
+        logging.exception("customer_id must be an integer")
+        return False
