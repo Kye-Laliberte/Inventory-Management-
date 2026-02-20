@@ -54,10 +54,6 @@ def getStoreByID(conn,store_id):
     try:
         store_id=int(store_id)
 
-        if store_id is None:
-            logging.error("store_id is required")
-            return False
-
         cursor=conn.cursor(cursor_factory=RealDictCursor)
         cursor.execute("SELECT * FROM stores WHERE store_id=%s",(store_id,))
         
@@ -71,88 +67,55 @@ def getStoreByID(conn,store_id):
     except psycopg2.Error as e:
         logging.exception(f"Error in store.py: get_stor_by_ID {e}")
         return False
+    except (ValueError, TypeError):
+        logging.exception("store_id must be an integer")
+        return False
     finally:
         if cursor is not None:
             cursor.close()
 
 #not tested
 def update_store_status(conn,store_id,status):
-    cursor=None
     try:
-        cursor=conn.cursor()
         store_id=int(store_id)
         status=str(status).lower().strip()
 
-        if status not in ["open", "closed","maintenance"]:
-            logging.error(f"{status} is not a valid statis type")
-            return False
-        #update store status
-        
-        cursor.execute("UPDATE stores SET status =%s WHERE store_id=%s",(status,store_id))
-
-        if cursor.rowcount == 0:
-            logging.warning("No store found with store_id=%s", store_id)
-            return False
-
-        conn.commit()
-        return True
-    
-    except psycopg2.Error as e:
-        logging.exception(f"data Error in store.py update_store_status {e}")
-        return False
-    finally:
-        if cursor is not None:
-            cursor.close()
-def updateStoresInventoryStatus(conn,store_id,status):
-    """updates the status of all inventory items in a store based on the store's status open=active, closed/maintenance=inactive"""
-    cursor=None
-    try:
-        
-        store_id=int(store_id)
-        status=str(status).lower().strip()
         if status not in ["open", "closed","maintenance"]:
             logging.error(f"{status} is not a valid status type")
             return False
         
-        invintory=getInventoryOfStore(conn,store_id)
-        if invintory is None:
-            logging.warning("no inventory found for store_id")
-            return None
-        
+        # Check if store exists
+        store_info=getStoreByID(conn,store_id)
+        if not store_info:
+            logging.error("store not found in database will not update store status")
+            return False  
+        elif store_info['status'] == status:
+            logging.info("store already has the specified status")
+            return True
+
+        #update store status
         with conn.cursor() as cursor:
-            if status == 'open':
-                status='active'
-            else:            
-                status='inactive'
-        
-            for items in invintory:
-                    #update status of inventory but only if item is the same as store status 
-                if items['status'] == status:
-                    cursor.execute("""UPDATE inventory
-                           SET status =%s WHERE store_id =%s AND item_id =%s""",(status,store_id,items['item_id']))
-            
-        conn.commit()
-        return True
+            cursor.execute("UPDATE stores SET status =%s WHERE store_id=%s",(status,store_id))
+
+            conn.commit()
+            return True
     
     except psycopg2.Error as e:
-        logging.exception(f"data error in store.py updateStoresInventoryStatus {e}")
+        logging.exception(f"data Error in store.py update_store_status {e}")
         return False
-    finally:
-        if cursor is not None:
-            cursor.close()
-        
+    except (ValueError, TypeError):
+        logging.exception("store_id must be an integer and status must be a string")
+        return False
+    
 
 
-
-
+    
 def get_store_by_store_code(conn,store_code):
     
     cursor=None
     try:
 
-        if not store_code:
-            logging.error("store_code is required")
-            return False
+        store_code=str(store_code).strip()
 
         cursor=conn.cursor(cursor_factory=RealDictCursor)
         cursor.execute("SELECT * FROM stores WHERE store_code=%s",(store_code,))
@@ -166,6 +129,10 @@ def get_store_by_store_code(conn,store_code):
     except psycopg2.Error as e:
         logging.exception(f"Error in store.py: get_store_by_store_code {e}")
         return False
+    except (ValueError, TypeError):
+        logging.exception("store_code must be a string")
+        return False
     finally:
         if cursor is not None:
             cursor.close()
+

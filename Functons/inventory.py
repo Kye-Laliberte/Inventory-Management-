@@ -141,51 +141,43 @@ def getInventoryByItem(conn,item_id):
     with conn.cursor(cursor_factory=RealDictCursor) as cursor:
         try:
             
-            try:
-                item_id=int(item_id)
-            except (ValueError, TypeError):
-                logging.exception("item_id must be an integer")
-                return False
-
+            item_id=int(item_id)
+            
             cursor.execute("SELECT * FROM inventory WHERE item_id=%s",(item_id,))
             
             inventory=cursor.fetchall()
-            if inventory is None:
+            if not inventory:
                 logging.warning("no inventory found for item_id")
-                return None
+                return False
             
             return inventory
         
         except psycopg2.Error as e:
             logging.exception(f"Error in inventory.py: get_inventory_by_item {e}")
             return False
-        except ValueError:
+        except (ValueError, TypeError):
             logging.exception("item_id must be an integer")
             return False
         
 def getInventoryOfStore(conn,store_id):
     try:
-
-        try:
-
-            store_id=int(store_id)
-
-        except (ValueError, TypeError):
-            logging.exception("store_id must be an integer")
-            return False
-       
         
+        store_id=int(store_id)
+
         with conn.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute("SELECT * FROM inventory WHERE store_id=%s",(store_id,))
         
             inventory=cursor.fetchall()
-        if inventory is []:
+
+        if not inventory:
             logging.warning("no inventory found for store_id")
-            return None
+            return False
         
         return inventory
     
     except psycopg2.Error as e:
         logging.exception(f"Error in inventory.py: get_inventory_by_store {e}")
         return False
-    
+    except (ValueError, TypeError):
+            logging.exception("store_id must be an integer")
+            return False
