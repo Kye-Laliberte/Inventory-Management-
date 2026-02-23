@@ -3,7 +3,7 @@ import psycopg2
 import logging
 from psycopg2.extras import RealDictCursor
 Customers_stat=['active','inactive']
-def addCustomers(conn,name,phone,email,customer_tier=0,status='active'):
+def addCustomer(conn,name,phone,email,customer_tier=0,status='active'):
     """adds a Customers within the sql table constrants
     conn: psycopg2 connection object to the database.
     name: str - The name of the customer.
@@ -16,19 +16,18 @@ def addCustomers(conn,name,phone,email,customer_tier=0,status='active'):
         False: If an error occurs or input is invalid.
         None: If the email or phone number is already taken.
     """
-    cursor=None
+    
     try:
-        if not name or not phone or not email:
-            logging.error("name, phone, and email are required.")
-            return False
+          
         try:
             customer_tier=int(customer_tier)
             name=str(name).strip()
             phone=str(phone).strip()
             email=str(email).strip()
             status=str(status).strip().lower()
-        except ValueError:
-            logging.error("incorect inputs.")
+            email=str(email).strip().lower()
+        except (ValueError, TypeError):
+            logging.error("incorect or invalid input types.")
             return False
 
         if status not in Customers_stat:
@@ -40,18 +39,24 @@ def addCustomers(conn,name,phone,email,customer_tier=0,status='active'):
 
         if customer_tier<0 or customer_tier>5:
             return False
-        cursor = conn.cursor()
+        with conn.cursor() as cursor:
 
-        cursor.execute("""INSERT INTO customers (name,phone,email,customers_tier,status)
+            cursor.execute("""INSERT INTO customers (name,phone,email,customers_tier,status)
                        VALUES (%s,%s,%s,%s,%s) RETURNING customer_id""",(name,phone,email,customer_tier,status))
-        conn.commit()
-        return cursor.fetchone()[0]
+            conn.commit()
+            if cursor.rowcount == 0:
+                logging.error("Failed to add customer.")
+            val=cursor.fetchone()[0]
+
+        return val
 
     except psycopg2.IntegrityError as l:
         if "email" in str(l):
             logging.info("Email is already taken.")
+            return False
         elif "phone" in str(l):
             logging.info("Phone is already taken.")
+            return False
         else:
             logging.info("Integrity error occurred.")
         return None
@@ -60,9 +65,6 @@ def addCustomers(conn,name,phone,email,customer_tier=0,status='active'):
         logging.exception(f"data error customers.py: {e}")
         return False
 
-    finally:
-            if cursor is not None:
-                cursor.close()
 
 def getCustumerByID(conn, customer_id):
     """Retrieves a customer's details by their ID.

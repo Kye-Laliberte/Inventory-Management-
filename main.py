@@ -5,10 +5,10 @@ import logging
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from Functons.getTable import getTable as gt
-from Functons.customers import getCustumerByID
+from Functons.customers import getCustumerByID, addCustomer
 from Functons.item import getItemByID
-from Functons.store import getStoreByID
-# getStoreByID getItemByID getCustumerByID
+from Functons.store import getStoreByID 
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s"
@@ -25,7 +25,13 @@ def main():
         
         tables=["purchases","stores","categorys","inventory","items","customers"]
 
-        dict=getItemByID(conn,'uy')
+        val=addCustomer(conn,"Greg Feay","123-5353","greg.feay@example.com",customer_tier=2,status='active')
+        print(f"New customer ID: {val}")         
+        custumers=gt(conn,tables[5])
+        
+        # lists all customers
+        for cust in custumers:
+            logging.info(f"Customer details: {cust}")
         
         logging.info(f"Item details: {dict}")
 
