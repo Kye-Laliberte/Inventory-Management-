@@ -8,6 +8,7 @@ from Functons.getTable import getTable as gt
 from Functons.customers import getCustumerByID
 from Functons.item import getItemByID
 from Functons.store import getStoreByID
+# getStoreByID getItemByID getCustumerByID
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s"
@@ -24,9 +25,9 @@ def main():
         
         tables=["purchases","stores","categorys","inventory","items","customers"]
 
-        dict=getStoreByID(conn,1)
+        dict=getItemByID(conn,'uy')
         
-        logging.info(f"Store details: {dict}")
+        logging.info(f"Item details: {dict}")
 
 
          # Seed data for categorys

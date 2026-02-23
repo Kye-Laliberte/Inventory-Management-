@@ -155,7 +155,6 @@ def updateItemInfo(conn,item_id,name=None,price=None,tags=None,description=None)
         return False        
 
 
-
 def getItemByID(conn,item_id):
     """Fetches an item from the items table by its ID.
     conn: psycopg2 connection object to the database.
@@ -178,6 +177,9 @@ def getItemByID(conn,item_id):
     
     except psycopg2.Error as e:
         logging.exception(f"data error in item.py get_item_by_id: {e}")
+        return False
+    except (ValueError, TypeError):
+        logging.exception("item_id must be an integer")
         return False
     
 def get_ItemBy_item_code(conn,item_code):
