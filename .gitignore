@@ -31,3 +31,4 @@ tester.py
 # Database backups or local files (optional)
 *.sqlite3
 *.db
+

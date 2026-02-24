@@ -1,6 +1,7 @@
 from operator import add
 from webbrowser import get
-
+from dotenv import load_dotenv
+import os
 from setup import setup
 import logging
 import psycopg2
@@ -17,8 +18,15 @@ logging.basicConfig(
 )
 def main():
 
-    conn=psycopg2.connect(dbname="datastore", user="postgres", password="12345", host="localhost",port="5433")
-        #ps 1-5
+    load_dotenv()
+
+    conn = psycopg2.connect(
+        dbname=os.getenv("dbname"),
+        user=os.getenv("user"),
+        password=os.getenv("password"),
+        host=os.getenv("host"),
+        port=os.getenv("port")) 
+
     try:
         #Setup the database (create tables and seed data)
         #setup.setup(conn) 
