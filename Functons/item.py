@@ -4,7 +4,7 @@ from psycopg2.extras import RealDictCursor
 import logging
 
 
-def additems(conn,name,category,price,tags,status='active',description=None):
+def additem(conn,name,category,price,tags,status='active',description=None):
     """Adds an item to the items table
     conn: psycopg2 connection object to the database.
     name: str - The name of the item.
@@ -34,7 +34,7 @@ def additems(conn,name,category,price,tags,status='active',description=None):
             return False
         
         if price<0:
-            logging.error("price cannot be negative")
+            logging.error("price cannot be negative or zero")
             return False
         
         # Check if item with same name and category exists
@@ -72,9 +72,8 @@ def additems(conn,name,category,price,tags,status='active',description=None):
     except psycopg2.Error as e:
         logging.exception(f"data error item.py additems: {e}")
         return False
-    finally:
-        if cursor is not None:
-            cursor.close()
+    except (ValueError, TypeError):
+        logging.exception("invalid input: price must be a float/Int and name, category, tags, description must be STRING")
 
 def updateItemStatus(conn,item_id,status):
     """Updates the status of an item in the items table."""
@@ -147,6 +146,8 @@ def updateItemInfo(conn,item_id,name=None,price=None,tags=None,description=None)
                 cursor.execute(update_query, tuple(update_values))
                 conn.commit()
             return True
+        
+
     except (ValueError, TypeError):
         logging.exception("invalid input: item_id must be an integer, price must be a float/Int, and name, category, tags, description must be STRING")
         return False
@@ -187,25 +188,18 @@ def get_ItemBy_item_code(conn,item_code):
     Item_code: str - The unique code.
     Returns: dict: A dictionary containing the item's details if found, None if not found, 
     or False if an error occurs."""
-    curser=None
+    
     try:
         item_code=str(item_code).strip()
         
-        if not item_code:
-            logging.error("item_code is cannot be empty")
-            return False
-        elif not isinstance(item_code, str):
-            logging.error("item_code must be a string")
-            return False
-        elif len(item_code) != 10:
+        if len(item_code) != 10:
             logging.error("item_code must be exactly 10 characters long")
             return False
         
-        curser=conn.cursor(cursor_factory=RealDictCursor)
-
-        curser.execute("""SELECT * FROM items WHERE item_code = %s;""",(item_code,))
-        
-        item=curser.fetchone()
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("""SELECT * FROM items WHERE item_code = %s;""",(item_code,))
+            
+            item=cursor.fetchone()
 
         if not item:
             logging.info("No item found with item_code=%s", item_code)
@@ -216,6 +210,6 @@ def get_ItemBy_item_code(conn,item_code):
     except psycopg2.Error as e:
         logging.exception(f"Data error in item.py get_item_by_item_code: {e}")
         return False
-    finally:
-        if curser is not None:
-            curser.close()
+    except (ValueError, TypeError):
+        logging.exception("item_code must be a string")
+        return False

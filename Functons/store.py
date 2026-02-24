@@ -28,6 +28,7 @@ def addStore(conn,name,location,status='open'):
 
         # Generate unique store_code
         startcode=f"{name[:3].upper()}"
+        
         storecode=f"{startcode}-{random.randint(100,999)}"
         while True:
             cursor.execute("SELECT 1 FROM stores WHERE store_code=%s;", (storecode,))
@@ -83,7 +84,7 @@ def update_store_status(conn,store_id,status):
             logging.error("store not found in database will not update store status")
             return False  
         elif store_info['status'] == status:
-            logging.info("store already has the specified status")
+            logging.info(f"store is alredy {status}")
             return True
 
         #update store status
@@ -101,18 +102,19 @@ def update_store_status(conn,store_id,status):
         return False
        
 def get_store_by_store_code(conn,store_code):
-    
-    cursor=None
+    """Retrieves a store from the stores table based on the provided store_code.
+    Returns a dictionary containing the store's details if found.,"""
     try:
-
         store_code=str(store_code).strip()
 
         cursor=conn.cursor(cursor_factory=RealDictCursor)
-        cursor.execute("SELECT * FROM stores WHERE store_code=%s",(store_code,))
         
-        store=cursor.fetchone()
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM stores WHERE store_code=%s",(store_code,))
+            store=cursor.fetchone()
+
         if store is None:
-            logging.warning("no Store found with store_code")
+            logging.warning(f"no Store found with store_code {store_code}")
         
         return store
     
@@ -122,7 +124,5 @@ def get_store_by_store_code(conn,store_code):
     except (ValueError, TypeError):
         logging.exception("store_code must be a string")
         return False
-    finally:
-        if cursor is not None:
-            cursor.close()
+    
 

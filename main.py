@@ -1,3 +1,4 @@
+from operator import add
 from webbrowser import get
 
 from setup import setup
@@ -5,9 +6,9 @@ import logging
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from Functons.getTable import getTable as gt
-from Functons.customers import getCustumerByID, addCustomer
-from Functons.item import getItemByID
-from Functons.store import getStoreByID 
+from Functons.customers import getCustumerByID, addCustomer, UpdateCustomerInfo
+from Functons.item import getItemByID, get_ItemBy_item_code, additem, updateItemInfo, updateItemStatus
+from Functons.store import getStoreByID, get_store_by_store_code,update_store_status ,addStore
 
 logging.basicConfig(
     level=logging.INFO,
@@ -24,18 +25,16 @@ def main():
         #logging.info("Database setup complete.")
         
         tables=["purchases","stores","categorys","inventory","items","customers"]
-
-        val=addCustomer(conn,"Greg Feay","123-5353","greg.feay@example.com",customer_tier=2,status='active')
-        print(f"New customer ID: {val}")         
+        UpdateCustomerInfo(conn,1,status="active")
         custumers=gt(conn,tables[5])
         
         # lists all customers
         for cust in custumers:
-            logging.info(f"Customer details: {cust}")
+            print(f"item details: {cust}")
         
-        logging.info(f"Item details: {dict}")
+        
 
-
+       
          # Seed data for categorys
         
     except psycopg2.Error as e:

@@ -4,7 +4,7 @@ import datetime as dtime
 from psycopg2.extras import RealDictCursor
 from Functons.item import getItemByID
 from Functons.store import getStoreByID
-def addToInventory(conn,store_id,item_id,newquantity,status='active'):
+def UpdateToInventory(conn,store_id,item_id,newquantity,status='active'):
     """
     Updates the inventory quantity or adds a new inventory record.
     Parameters:

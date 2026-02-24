@@ -94,3 +94,56 @@ def getCustumerByID(conn, customer_id):
         logging.exception("customer_id must be an integer")
         return False
     
+def UpdateCustomerInfo(conn,customer_id,name=None,phone=None,email=None,customer_tier=None,status=None):
+    """Updates a customer's information based on provided parameters.
+    """
+    try:
+        customer_id=int(customer_id)
+        status=str(status).strip().lower() if status is not None else None
+        name=str(name).strip() if name is not None else None
+        phone=str(phone).strip() if phone is not None else None
+        email=str(email).strip().lower() if email is not None else None
+        customer_tier=int(customer_tier) if customer_tier is not None else None
+        if status not in Customers_stat:
+            logging.error("not a valid status")
+            return False
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT * FROM customers WHERE customer_id = %s", (customer_id,))
+            if cursor.fetchone() is None:
+                logging.warning(f"Customer not found with ID {customer_id}")
+                return False
+            update_fields = []
+            update_values = []
+            if name is not None:
+                update_fields.append("name =%s")
+                update_values.append(name)
+
+            if phone is not None:
+                update_fields.append("phone =%s")
+                update_values.append(phone)
+            if email is not None:                    
+                update_fields.append("email =%s")
+                update_values.append(email)
+            if customer_tier is not None:
+                update_fields.append("customer_tier =%s")
+                update_values.append(customer_tier)
+            if status is not None:
+                 update_fields.append("status =%s")
+                 update_values.append(status)
+                
+            if update_fields:
+                query = f"UPDATE customers SET {', '.join(update_fields)} WHERE customer_id = %s"
+                update_values.append(customer_id)
+                cursor.execute(query, tuple(update_values))
+                conn.commit()
+                logging.info(f"Customer with ID {customer_id} updated successfully.")
+                return True
+            else:
+                logging.warning("No fields to update.")
+                return True
+    except psycopg2.Error as e:
+        logging.exception(f"data error customers.py: {e}")
+        return False
+    except (ValueError, TypeError):
+        logging.exception("customer_id must be an integer")
+        return False

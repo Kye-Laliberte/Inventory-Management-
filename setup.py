@@ -54,7 +54,7 @@ def setup(conn, schema_path="Datastore.session.sql"):
             last = random.choice(last_names)
             name = f"{first} {last}"
             phone = f"555-01{random.randint(10,99)}"
-            email = f"{first.lower()}.{last.lower()}{random.randint(1,100)}@{random.choice(email_domains)}"
+            email = f"{first.lower()}.{last.lower()}{random.randint(100,999)}@{random.choice(email_domains)}"
             if phone in phone_numbers_set:
                 continue
             phone_numbers_set.add(phone)
@@ -105,12 +105,12 @@ def setup(conn, schema_path="Datastore.session.sql"):
         # Seed data for items
         price_ranges = {"food": (1, 50),"cleaning": (5, 50),"electronics": (50, 2000),"home": (5, 500),"clothes": (10, 300),"toys": (5, 200)}
         sample_items = {
-        "food": ["Eggs", "Milk", "Bread", "Cheese", "Apples"],
-        "cleaning": ["Toilet Paper", "Detergent", "Broom", "Sponge", "Dish Soap"],
-        "electronics": ["Laptop", "Headphones", "Smartphone", "Camera", "Monitor"],
-        "home": ["Coffee Mug", "Cushion", "Lamp", "Plate Set", "Blanket"],
-        "clothes": ["T-Shirt", "Jeans", "Jacket", "Socks", "Hat"],
-        "toys": ["Action Figure", "Doll", "Puzzle", "Board Game", "RC Car"]}
+        "food": ["eggs", "milk", "bread", "cheese", "apples"],
+        "cleaning": ["toilet paper", "detergent", "broom", "sponge", "dish soap"],
+        "electronics": ["laptop", "headphones", "smartphone", "camera", "monitor"],
+        "home": ["coffee mug", "cushion", "lamp", "plate set", "blanket"],
+        "clothes": ["t-shirt", "jeans", "jacket", "socks", "hat"],
+        "toys": ["action figure", "doll", "puzzle", "board game", "rc car"]}
         category=[ "food","cleaning","electronics","home","clothes","toys"]
         items = []
         item_codes_set = set()
