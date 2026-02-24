@@ -4,7 +4,7 @@ import random
 import psycopg2
 import logging
 
-def setup(conn, schema_path="Datastore.session.sql"):
+def setup(conn, schema_path="Store.sql"):
     """Creates tables from SQL file"""
 
     if not exists(schema_path):
@@ -101,7 +101,6 @@ def setup(conn, schema_path="Datastore.session.sql"):
                            ON CONFLICT (store_code) DO NOTHING;""",stores)
         logging.info("INSERT INTO stores")
 
-
         # Seed data for items
         price_ranges = {"food": (1, 50),"cleaning": (5, 50),"electronics": (50, 2000),"home": (5, 500),"clothes": (10, 300),"toys": (5, 200)}
         sample_items = {
@@ -171,3 +170,6 @@ def setup(conn, schema_path="Datastore.session.sql"):
         logging.exception(f"data error setup.py: {e}")
     finally:
          cursor.close()
+
+if __name__ == "__main__":
+    setup()

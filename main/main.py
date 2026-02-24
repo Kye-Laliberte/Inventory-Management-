@@ -2,7 +2,6 @@ from operator import add
 from webbrowser import get
 from dotenv import load_dotenv
 import os
-from setup import setup
 import logging
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -26,7 +25,7 @@ def main():
         password=os.getenv("password"),
         host=os.getenv("host"),
         port=os.getenv("port")) 
-
+    
     try:
         #Setup the database (create tables and seed data)
         #setup.setup(conn) 
