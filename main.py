@@ -9,7 +9,8 @@ from Functons.getTable import getTable as gt
 from Functons.customers import getCustumerByID, addCustomer, UpdateCustomerInfo
 from Functons.item import getItemByID, get_ItemBy_item_code, additem, updateItemInfo, updateItemStatus
 from Functons.store import getStoreByID, get_store_by_store_code,update_store_status ,addStore
-#psql -U postgres -d datastore -p 5433
+from Functons.inventory import UpdateToInventory
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s"
@@ -25,8 +26,8 @@ def main():
         #logging.info("Database setup complete.")
         
         tables=["purchases","stores","categorys","inventory","items","customers"]
-        UpdateCustomerInfo(conn,1,status="active")
-        custumers=gt(conn,tables[5])
+        
+        custumers=gt(conn,tables[4])
         
         # lists all customers
         for cust in custumers:

@@ -1,7 +1,7 @@
 CREATE TABLE customers(
    customer_id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    phone TEXT UNIQUE,
+    phone TEXT,
     email TEXT UNIQUE NOT NULL,
     customers_tier INTEGER NOT NULL DEFAULT 0 CHECK (customers_tier BETWEEN 0 AND 5),
     status TEXT NOT NULL DEFAULT 'active'  CHECK (status IN('active','inactive'))
@@ -11,7 +11,7 @@ CREATE TABLE  stores(
    store_id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     location TEXT NOT NULL,  
-    status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open', 'closed', 'maintenance')),
+    status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ("inactive", "active")),
     store_code TEXT UNIQUE NOT NULL --first three letters of store name + three digit number 
 );
 
@@ -36,7 +36,7 @@ CREATE TABLE inventory(
    store_id INTEGER REFERENCES stores(store_id),
    item_id INTEGER REFERENCES items(item_id), 
    Primary KEY (store_id,item_id),
-   quantity INTEGER NOT NULL CHECK(quantity>=0),
+   quantity INTEGER NOT NULL CHECK(quantity>=0) DEFAULT 0,
    status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'inactive'))
   
 );

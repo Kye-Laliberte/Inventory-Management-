@@ -24,7 +24,7 @@ def additem(conn,name,category,price,tags,status='active',description=None):
             logging.error("name, price, and category are required.")
             return False
         
-        name=str(name).strip()
+        name=str(name).strip().lower()
         price=float(price)
         status=str(status).strip().lower()
         category=str(category).strip().lower() if category else None
