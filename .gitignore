@@ -6,7 +6,10 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
+Functons/__pycache__/
+*.pyc
+*.pyo
+*.pyd
 # Distribution / packaging
 build/
 dist/
@@ -22,6 +25,8 @@ dist/
 
 # Logs
 *.log
+
+tester.py
 
 # Database backups or local files (optional)
 *.sqlite3
