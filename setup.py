@@ -77,7 +77,7 @@ def setup(conn, schema_path="Datastore.session.sql"):
         # Seed data for stores
         store_names = ["Main", "High", "Oak", "Pine", "Maple", "Elm", "Cedar", "Lakeview", "Hilltop", "Sunset"]
         street_types = ["St", "Ave", "Blvd", "Rd", "Lane", "Drive"]
-        store_statuses = ["open", "closed", "maintenance"]
+        store_statuses = ['active','inactive']
         
         stores_set = set()
         stores = []

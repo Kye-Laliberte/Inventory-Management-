@@ -9,7 +9,7 @@ from Functons.getTable import getTable as gt
 from Functons.customers import getCustumerByID, addCustomer, UpdateCustomerInfo
 from Functons.item import getItemByID, get_ItemBy_item_code, additem, updateItemInfo, updateItemStatus
 from Functons.store import getStoreByID, get_store_by_store_code,update_store_status ,addStore
-
+#psql -U postgres -d datastore -p 5433
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s"

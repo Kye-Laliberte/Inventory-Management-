@@ -2,7 +2,8 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import random
 import logging
-def addStore(conn,name,location,status='open'):
+
+def addStore(conn,name,location,status='active'):
     """adds a store to the store table"""
     cursor=None
     try:
@@ -15,7 +16,7 @@ def addStore(conn,name,location,status='open'):
         location=str(location).strip()
         status=str(status).strip().lower()
 
-        if  status not in ['open','closed','maintenance']:
+        if  status not in ['active','inactive']:
             logging.error(f"{status} is not a valid status")
             return False
         
@@ -68,13 +69,13 @@ def getStoreByID(conn,store_id):
     except (ValueError, TypeError):
         logging.exception("store_id must be an integer")
         return False
-#not tested
+
 def update_store_status(conn,store_id,status):
     try:
         store_id=int(store_id)
         status=str(status).lower().strip()
 
-        if status not in ["open", "closed","maintenance"]:
+        if status not in ['active','inactive']:
             logging.error(f"{status} is not a valid status type")
             return False
         
