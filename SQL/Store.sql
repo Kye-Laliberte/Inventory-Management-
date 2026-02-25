@@ -1,4 +1,4 @@
-CREATE TABLE customers(
+CREATE TABLE IF NOT EXISTS customers(
    customer_id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     phone TEXT,
@@ -7,7 +7,7 @@ CREATE TABLE customers(
     status TEXT NOT NULL DEFAULT 'active'  CHECK (status IN('active','inactive'))
 );
 
-CREATE TABLE  stores(
+CREATE TABLE IF NOT EXISTS stores(
    store_id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     location TEXT NOT NULL,  
@@ -15,13 +15,13 @@ CREATE TABLE  stores(
     store_code TEXT UNIQUE NOT NULL --first three letters of store name + three digit number 
 );
 
-CREATE TABLE categorys(
+CREATE TABLE  IF NOT EXISTS categorys(
     category_id SERIAL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,--home toys cleaning electronics food clothes 
     description TEXT
 );
 
-CREATE TABLE  items (
+CREATE TABLE IF NOT EXISTS  items (
     item_id SERIAL PRIMARY KEY,
     item_code VARCHAR(10) NOT NULL UNIQUE, --first three letters of category + first three letters of item name + - + three digit number 
     name TEXT NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE  items (
     tags TEXT
 );
 
-CREATE TABLE inventory(
+CREATE TABLE IF NOT EXISTS inventory(
    store_id INTEGER REFERENCES stores(store_id),
    item_id INTEGER REFERENCES items(item_id), 
    Primary KEY (store_id,item_id),
@@ -40,7 +40,7 @@ CREATE TABLE inventory(
    status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'inactive'))
   
 );
-CREATE TABLE  purchases(
+CREATE TABLE IF NOT EXISTS purchases(
     purchases_id SERIAL PRIMARY KEY,
     customers_id INTEGER NOT NULL REFERENCES customers(customer_id),
     item_id INTEGER NOT NULL REFERENCES items(item_id),
