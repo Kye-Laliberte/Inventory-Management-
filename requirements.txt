@@ -1,0 +1,8 @@
+alembic==2.1.1
+fastapi==0.114.0
+uvicorn[standard]==0.23.1
+pydantic==2.6.0
+sqlalchemy==2.0.24
+databases==0.7.3          # if you’re using async database connections
+psycopg2-binary==2.9.7    # if using PostgreSQL, replace if using SQLite or MySQL
+python-dotenv==1.0.0      # if using .env files for config

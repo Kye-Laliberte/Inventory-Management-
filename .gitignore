@@ -15,7 +15,10 @@ build/
 dist/
 *.egg-info/
 .eggs/
-
+api/data/__pycache__/
+*.pyc
+*.pyo
+*.pyd
 # Environment variables
 .env
 
@@ -26,7 +29,8 @@ dist/
 # Logs
 *.log
 
-tester.py
+tests/
+
 
 # Database backups or local files (optional)
 *.sqlite3
