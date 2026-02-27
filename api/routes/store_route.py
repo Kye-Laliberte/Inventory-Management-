@@ -10,7 +10,7 @@ router=APIRouter(prefix="/store",tags=["store"])
 def storehome():
     return {"message":"Welcome to the store home page."}
        #get store by ID 
-@router.get("/{store_ID}/ID")
+@router.get("/{store_ID}/ID",response_model=Store)
 def get_id(id: int=Path(...)):
         
     result=getStoreByID(store_id=id)
@@ -24,7 +24,7 @@ def get_id(id: int=Path(...)):
     return result
     
     #gets a stores by stor_code 
-@router.get("/{store_code}/code")
+@router.get("/{store_code}/code",response_model=Store)
 def get_store(code: str=Path(...)):
     result= GetBystore_code(code)
     if result is False:
@@ -35,7 +35,7 @@ def get_store(code: str=Path(...)):
                             detail="Store not found")
     return result
     
-@router.post("/addStore",response_model=StoreCreate)
+@router.post("/addStore",response_model=Store)
 def add_store(store:StoreCreate):
     val=addStore(
          name=store.name,
@@ -43,11 +43,12 @@ def add_store(store:StoreCreate):
         status=store.status)
     if val is False:
         raise HTTPException(status_code=400,detail="Invalid data or database error")
-        
     if val is None:
         raise HTTPException(status_code=409,detail="Store already exists")
-    
-    return {"store_id": val}
+    fullstore=getStoreByID(val)
+    if not fullstore:
+        raise HTTPException(status_code=500, detail="Error retrieving store")
+    return {"store_id": fullstore}
 
 #updates status
 @router.put("/{store_id}/status")
