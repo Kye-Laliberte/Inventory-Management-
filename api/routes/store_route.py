@@ -39,10 +39,14 @@ def get_store(code: str=Path(...)):
     
 @router.post("/addStore",response_model=Store)
 def add_store(store:StoreCreate):
-    val=addStore(
-         name=store.name,
-        location=store.location,
-        status=store.status)
+    name=str(store.name)
+    name=name.strip()
+    location=str(store.location)
+    location=location.strip()
+    status=str(store.status)
+    
+    val=addStore(name,location,status)
+    
     if val is False:
         raise HTTPException(status_code=400,detail="Invalid data or database error")
     if val is None:

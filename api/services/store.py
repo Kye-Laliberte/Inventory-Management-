@@ -6,10 +6,7 @@ from ..data.conect import get_connection
 def addStore(name:str,location:str,status:str='active'):
     """adds a store to the store table"""
     try:
-        name=name.strip()
-        location=location.strip()
-        
-        
+       
         with get_connection() as conn:
             with conn.cursor() as cursor:
 

@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS stores(
     location TEXT NOT NULL,  
     status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('inactive', 'active')),
     store_code TEXT UNIQUE NOT NULL, --first three letters of store name + three digit number 
-    ADD CONSTRAINT name_location UNIQUE (name, location)
+    ADD CONSTRAINT  name_location_unique UNIQUE (name, location)
 );
 
 CREATE TABLE  IF NOT EXISTS categorys(
