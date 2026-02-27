@@ -1,7 +1,10 @@
 from fastapi import APIRouter, HTTPException,Query,Path
 from .models.store_models import Store,statusTable,StoreCreate
+from typing import List, Optional
+from .models.invent import InventoryItem
 from ..data.conect import get_connection
 from ..services.store import  getStoreByID,GetBystore_code,UpdateStoreStatus,addStore
+from ..services.inventory import getInventoryOfStore
 from psycopg2.extras import RealDictCursor
 
 router=APIRouter(prefix="/store",tags=["store"])
@@ -57,12 +60,30 @@ def add_store(store:StoreCreate):
     return {"store_id": fullstore}
 
 #updates status
-@router.put("/{store_id}/status")
+@router.put("/{store_id}/status",response_model=Store)
 def updateStatus(status:statusTable = ...,store_id: int=Path(..., description="ID of the store to update")):#needs a Path?
      
     val=UpdateStoreStatus(store_id,status.value)
     if val:
-        return {"message": f"store {store_id} updated to '{status.value}'"}
+        updatedStore=getStoreByID(store_id)
+        return updatedStore
     raise HTTPException(status_code=400,detail="was not able to update store status")
-         
-    #http://localhost:8000/docs
+
+
+@router.get("/{store_id}/Inventory",response_model=List[InventoryItem])
+def getStoreInventory(
+    store_id: int=Path(...),
+    catigory_id: Optional[int] = Query(None,description="Filter by category ID")
+    ):
+    
+    Inventory=getInventoryOfStore(store_id,catigory_id)
+    if Inventory is False:
+        raise HTTPException(status_code=500, detail="Database error")
+    if Inventory is None:
+        raise HTTPException(status_code=404, detail="No inventory found")
+    
+    return Inventory
+
+
+
+#http://localhost:8000/docs

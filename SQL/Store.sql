@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS inventory(
    Primary KEY (store_id,item_id),
    quantity INTEGER NOT NULL CHECK(quantity>=0) DEFAULT 0,
    status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'inactive'))
-  
+  --add price here not in items. note for later
 );
 CREATE TABLE IF NOT EXISTS purchases(
     purchases_id SERIAL PRIMARY KEY,

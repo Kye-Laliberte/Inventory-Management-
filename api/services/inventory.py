@@ -2,11 +2,12 @@ import psycopg2
 import logging
 import datetime as dtime
 from psycopg2.extras import RealDictCursor
-from services.item import getItemByID
-from services.store import getStoreByID
+from .item import getItemByID
+from .store import getStoreByID
 import psycopg2.errors
 from psycopg2.errors import ForeignKeyViolation
 from ..data.conect import get_connection
+from pydantic import BaseModel
 def UpdateToInventory(conn,store_id,item_id,newquantity=0,status='active'):
     """
     Updates the inventory quantity or adds a new inventory record.
@@ -120,25 +121,42 @@ def getInventoryByItem(conn,item_id):
             logging.exception("item_id must be an integer")
             return False
         
-def getInventoryOfStore(conn,store_id):
+def getInventoryOfStore(store_id:int,category_id=None):
     try:
-        
-        store_id=int(store_id)
-
-        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM inventory WHERE store_id=%s",(store_id,))
-        
-            inventory=cursor.fetchall()
-
-        if not inventory:
-            logging.warning("no inventory found for store_id")
-            return False
-        
+        with get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                if not category_id:
+                    cursor.execute("""SELECT 
+                        i.item_id,
+                        it.name AS item_name,
+                        i.quantity,
+                        it.price,
+                        c.name AS category_name
+                        FROM inventory i
+                        JOIN items it ON i.item_id = it.item_id
+                        JOIN categorys c ON it.category_id = c.category_id
+                        WHERE i.store_id = %s;""",(store_id,))
+                else:
+                     cursor.execute("""SELECT 
+                        i.item_id,
+                        it.name AS item_name,
+                        i.quantity,
+                        it.price,
+                        c.name AS category_name
+                        FROM inventory i
+                        JOIN items it ON i.item_id = it.item_id
+                        JOIN categorys c ON it.category_id = c.category_id
+                        WHERE i.store_id = %s AND c.category_id = %s;""",(store_id, category_id))
+                
+                inventory=cursor.fetchall()
+                
+                if not inventory:
+                    logging.warning("no inventory found for store_id")
+                    return None
+                
         return inventory
     
     except psycopg2.Error as e:
         logging.exception(f"Error in inventory.py: get_inventory_by_store {e}")
         return False
-    except (ValueError, TypeError):
-            logging.exception("store_id must be an integer")
-            return False
+    

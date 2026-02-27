@@ -64,7 +64,7 @@ def UpdateStoreStatus(store_id:int,status: str):
         with get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute("UPDATE stores SET status =%s WHERE store_id=%s",(status,store_id))
-
+                
                 conn.commit()
 
         return True

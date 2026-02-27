@@ -2,16 +2,8 @@ from pydantic import BaseModel, validator, Field,  constr
 from typing import Optional
 from enum import Enum
 
-class Store(BaseModel):
-    store_id: int
-    name: str
-    location: str
-    status: str
-    store_code: str
-    """@validator("status")
-    def validat_status(cls, v):
-        if v not in ("inactive", "active"):
-            raise ValueError("Invalid status")"""
+
+
         
 class statusTable(str,Enum):
     active = "active"
@@ -28,6 +20,16 @@ class ItemCreate(BaseModel):
     def validat_status(cls, v):
         if v not in ("inactive", "active"):
             raise ValueError("Invalid status")
+        
+
+
+
+class Store(BaseModel):
+    store_id: int
+    name: str
+    location: str
+    status: str
+    store_code: str
 
 class StoreCreate(BaseModel):
     name: str
