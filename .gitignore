@@ -3,13 +3,13 @@ venv/
 
 # Python cache files
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-Functons/__pycache__/
-*.pyc
-*.pyo
-*.pyd
+
+api/services/__pycache__/
+
+
+api/routes/__pycache__/
+api/routes/models/__pycache__/
+
 # Distribution / packaging
 build/
 dist/

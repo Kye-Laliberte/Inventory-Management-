@@ -4,7 +4,7 @@ import random
 import psycopg2
 import logging
 
-def setup(conn, schema_path="SQL/Store.sql"):
+def setup(conn, schema_path="api/SQL/Store.sql"):
     """Creates tables from SQL file"""
 
     if not exists(schema_path):
