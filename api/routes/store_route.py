@@ -6,11 +6,14 @@ from psycopg2.extras import RealDictCursor
 
 router=APIRouter(prefix="/store",tags=["store"])
 
+@router.get("/")
+def storehome():
+    return {"message":"Welcome to the store home page."}
        #get store by ID 
-@router.get("/{store_ID}",response_model=Store)
-def get_id(store_id: int=Path(gt=0)):
+@router.get("/{store_ID}/ID")
+def get_id(id: int=Path(...)):
         
-    result=getStoreByID(store_id)
+    result=getStoreByID(store_id=id)
     if result is None:
         raise HTTPException(status_code=404, detail="Store not found")
         
@@ -21,9 +24,9 @@ def get_id(store_id: int=Path(gt=0)):
     return result
     
     #gets a stores by stor_code 
-@router.get("/{store_code}", response_model=Store)
-def get_store(store_code: str):
-    result= GetBystore_code(store_code=store_code)
+@router.get("/{store_code}/code")
+def get_store(code: str=Path(...)):
+    result= GetBystore_code(code)
     if result is False:
          raise HTTPException(status_code=400,
                              detail="Invalid data or database error")
@@ -32,7 +35,7 @@ def get_store(store_code: str):
                             detail="Store not found")
     return result
     
-@router.post("/addStore",status_code=201)
+@router.post("/addStore",response_model=StoreCreate)
 def add_store(store:StoreCreate):
     val=addStore(
          name=store.name,
@@ -55,4 +58,4 @@ def updateStatus(status:statusTable = ...,store_id: int=Path(..., description="I
         return {"message": f"store {store_id} updated to '{status.value}'"}
     raise HTTPException(status_code=400,detail="was not able to update store status")
          
-    
+    #http://localhost:8000/docs

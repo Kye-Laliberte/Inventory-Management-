@@ -46,6 +46,10 @@ def getStoreByID(store_id: int):
                 cursor.execute("SELECT * FROM stores WHERE store_id=%s",
                                (store_id,))
                 store=cursor.fetchone()
+                
+                if not store:
+                    return None
+
             return store# None if no store
     
     except psycopg2.Error as e:
@@ -85,6 +89,9 @@ def GetBystore_code(store_code):
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute("SELECT * FROM stores WHERE store_code=%s",(store_code,))
                 store=cursor.fetchone()# none if not found
+
+                if not store:
+                    return None
       
         return store
     

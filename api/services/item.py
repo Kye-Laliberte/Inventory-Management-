@@ -2,7 +2,7 @@ import psycopg2
 import random
 from psycopg2.extras import RealDictCursor
 import logging
-from Data.conect import get_connection
+from ..data.conect import get_connection
 
 def additem(name,category_id,price,tags,status='active',description=None):
     

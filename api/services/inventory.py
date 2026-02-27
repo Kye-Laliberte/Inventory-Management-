@@ -6,6 +6,7 @@ from services.item import getItemByID
 from services.store import getStoreByID
 import psycopg2.errors
 from psycopg2.errors import ForeignKeyViolation
+from ..data.conect import get_connection
 def UpdateToInventory(conn,store_id,item_id,newquantity=0,status='active'):
     """
     Updates the inventory quantity or adds a new inventory record.
