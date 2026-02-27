@@ -13,11 +13,6 @@ def get_connection():
     dotenv_path = Path("C:/projects/vs stuff 2/New folder (2)/Inventory-Management-/.env")
     load_dotenv(dotenv_path=dotenv_path)
     
-    print(os.getenv("POSTGRES_USER"))
-    print(os.getenv("POSTGRES_PASSWORD"))
-    print(os.getenv("DB_HOST"))
-    print(os.getenv("DB_PORT"))
-    print(os.getenv("POSTGRES_DB"))
 
     conn= psycopg2.connect(
         dbname=os.getenv("POSTGRES_DB"),

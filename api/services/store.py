@@ -80,19 +80,16 @@ def UpdateStoreStatus(store_id:int,status: str):
     except Exception as e2:
         logging.exception(f"Error updating store status: {e2}")
         return False
-def GetBystore_code(store_code):
+def GetBystore_code(store_code:str):
     """Retrieves a store from the stores table based on the provided store_code.
     Returns a dictionary containing the store's details if found.,"""
     try:
-        store_code=store_code.strip()
+        
         with get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute("SELECT * FROM stores WHERE store_code=%s",(store_code,))
                 store=cursor.fetchone()# none if not found
-
-                if not store:
-                    return None
-      
+                
         return store
     
     except psycopg2.Error as e:

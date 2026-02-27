@@ -11,9 +11,9 @@ def storehome():
     return {"message":"Welcome to the store home page."}
        #get store by ID 
 @router.get("/{store_ID}/ID",response_model=Store)
-def get_id(id: int=Path(...)):
+def get_id(store_ID: int=Path(...)):
         
-    result=getStoreByID(store_id=id)
+    result=getStoreByID(store_ID)
     if result is None:
         raise HTTPException(status_code=404, detail="Store not found")
         
@@ -24,9 +24,11 @@ def get_id(id: int=Path(...)):
     return result
     
     #gets a stores by stor_code 
-@router.get("/{store_code}/code",response_model=Store)
+@router.get("/{code}/code",response_model=Store)
 def get_store(code: str=Path(...)):
+    code=code.strip()
     result= GetBystore_code(code)
+    
     if result is False:
          raise HTTPException(status_code=400,
                              detail="Invalid data or database error")
