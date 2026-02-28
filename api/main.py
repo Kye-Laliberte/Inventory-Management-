@@ -8,12 +8,16 @@ from psycopg2.extras import RealDictCursor
 from .services.store import getStoreByID
 from .data.conect import get_connection
 from .routes.models.store_models import Store
+from .routes.customersroute import router as cust_router
+from .routes.inventoryroute import router as inven_router
 
 
 #sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 app = FastAPI(title="Inventory API")
 app.include_router(store_router)
+app.include_router(cust_router)
+app.include_router(inven_router)
 
 logging.basicConfig(
     level=logging.INFO,

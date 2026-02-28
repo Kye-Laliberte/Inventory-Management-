@@ -5,7 +5,7 @@ from .models.invent import InventoryItem
 from ..data.conect import get_connection
 from ..services.store import  getStoreByID,GetBystore_code,UpdateStoreStatus,addStore
 from ..services.inventory import getInventoryOfStore
-from psycopg2.extras import RealDictCursor
+
 
 router=APIRouter(prefix="/store",tags=["store"])
 
@@ -69,7 +69,7 @@ def updateStatus(status:statusTable = ...,store_id: int=Path(..., description="I
         return updatedStore
     raise HTTPException(status_code=400,detail="was not able to update store status")
 
-
+#gets items in store can sort by catigory id
 @router.get("/{store_id}/Inventory",response_model=List[InventoryItem])
 def getStoreInventory(
     store_id: int=Path(...),

@@ -1,2 +1,4 @@
-from ..data.conect import get_connection
+from fastapi import APIRouter, HTTPException,Query,Path
 
+
+router=APIRouter(prefix="/Inv",tags=["nventory"])

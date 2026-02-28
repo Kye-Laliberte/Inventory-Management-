@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS customers(
     email TEXT UNIQUE NOT NULL,
     customers_tier INTEGER NOT NULL DEFAULT 0 CHECK (customers_tier BETWEEN 0 AND 5),
     status TEXT NOT NULL DEFAULT 'active'  CHECK (status IN('active','inactive'))
+    --plan to add 'suspended' 'banned'  to status 
 );
 
 CREATE TABLE IF NOT EXISTS stores(
@@ -31,6 +32,7 @@ CREATE TABLE IF NOT EXISTS  items (
     description TEXT,
     price NUMERIC(10,2) NOT NULL CHECK(price >= 0),
     status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'inactive')),
+    --plan to add 'discontinued' to status 
     tags TEXT
 );
 
